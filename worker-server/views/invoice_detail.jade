@@ -1,0 +1,125 @@
+table(width="100%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#f5f7f8")
+    tbody
+        tr
+            td(align="center")
+                table(align="center" class="table600" width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff")
+                    tbody
+
+                        tr
+                            td(width="15") &nbsp;
+                            td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color: #7f8c8d; font-size:13px; line-height:28px;")
+
+                                table(style="width: 100%; font-size: 12px;")
+                                    tr
+                                        td(height="30" colspan="4")
+                                    tr
+                                        td(width="15")
+                                        td(width="250")
+                                            img(src="http://#{company.subdomain}.#{settings.domain}/img/uploads/company/#{company.logo}" style="width: 150px")
+                                        td(width="250" style="text-align: center; line-height:18px;" )
+                                            h2(style="margin-bottom: 5px;") Master Invoice List
+                                            p(style="margin: 5px;") #{timePeriod.start} - #{timePeriod.end}
+                                        td(width="15")
+                                    tr
+                                        td(height="30" colspan="4")
+                                table(style="width: 100%;")
+
+                                    each invoice, i in invoices
+
+                                        tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#ffffff; font-size:11px; line-height:21px; border-top: 1px solid #000000; border-bottom: 1px solid #000000;" bgcolor="#0277bd")
+                                            td(width="15")
+                                            td(colspan="2")
+                                                | #{ invoice.Lease.Unit.Address.address} ##{ invoice.Lease.Unit.number} #{ invoice.Lease.Unit.Address.city} #{ invoice.Lease.Unit.Address.state} #{ invoice.Lease.Unit.Address.zip}
+                                            td(style="text-align: right") Due: #{ moment(invoice.due).format('MM/DD/YYYY') }
+                                            td(style="text-align: right") Invoice ##{ invoice.number }
+                                            td(width="15")
+                                        tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#a0a0a0; font-size:11px; line-height:21px; border-bottom: 1px solid #e2e2e2;" bgcolor="#f5f7f8")
+                                            td(width="15")
+                                            td Product
+                                            td Cost
+                                            td Qty
+                                            td(style="text-align: right") Total
+                                            td(width="15")
+                                        each line, l in invoice.InvoiceLines
+                                            - bgColor = (l %2 )? '#f5f7f8': '#ffffff';
+
+                                            tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2;")
+                                                td(width="15")
+                                                td #{ line.Product.name }
+                                                td $#{ line.cost.toFixed(2) }
+                                                td #{ line.qty }
+                                                td(style="text-align: right") $#{ (line.cost * line.qty).toFixed(2) }
+                                                td(width="15")
+
+                                        each discount, i in invoice.discounts
+                                            - bgColor = (l %2 )? '#f5f7f8': '#ffffff';
+                                            tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2;" bgcolor="#{ bgColor }" )
+                                                td(width="15")
+                                                td #{ discount.name }
+                                                td &nbsp;
+                                                td &nbsp;
+                                                td(style="text-align: right") ($#{discount.total})
+                                                td(width="15")
+
+                                        tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#0277bd; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2; border-bottom: 1px solid #e2e2e2;" bgcolor="#{ bgColor }")
+                                            td(width="15")
+                                            td
+                                                strong Subtotal:
+                                            td &nbsp;
+                                            td &nbsp;
+                                            td(style="text-align: right")
+                                                strong $#{ invoice.subTotal}
+                                            td(width="15")
+
+                                        tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#0277bd; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2; border-bottom: 1px solid #e2e2e2;" bgcolor="#{ bgColor }")
+                                            td(width="15")
+                                            td
+                                                strong Tax:
+                                            td &nbsp;
+                                            td &nbsp;
+                                            td(style="text-align: right")
+                                                strong $#{ invoice.totalTax }
+                                            td(width="15")
+
+                                        tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#0277bd; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2; border-bottom: 1px solid #e2e2e2;" bgcolor="#{ bgColor }")
+                                            td(width="15")
+                                            td
+                                                strong Invoice Total:
+                                            td &nbsp;
+                                            td &nbsp;
+                                            td(style="text-align: right")
+                                                strong $#{ invoice.totalDue}
+                                            td(width="15")
+
+
+
+
+
+                                        tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#a0a0a0; font-size:11px; line-height:21px;" bgcolor="#ffffff")
+                                            td(width="15")
+                                            td(colspan="2")
+                                                em Breakdown by tenant
+                                            td(style="text-align: right") Rent
+                                            td(style="text-align: right") Utilties
+                                            td(style="text-align: right") &nbsp;
+                                            td(width="15")
+
+
+
+
+                                        - var tenantRentAmt = ( invoice.rentTotal / invoice.Lease.Tenants.length ).toFixed(2)
+                                        - var tenantutilitiesAmt = ( invoice.utilitiesTotal / invoice.Lease.Tenants.length ).toFixed(2)
+
+                                        each tenant, t in invoice.Lease.Tenants
+                                            tr(bgcolor="#ffffff" style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px;")
+                                                td(width="15")
+                                                td(colspan="2") #{tenant.first} #{tenant.last}
+                                                td(style="text-align: right") $#{tenantRentAmt}
+                                                td(style="text-align: right") $#{tenantutilitiesAmt}
+                                                td(width="15")
+                                        tr(bgcolor="#ffffff"  style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px;")
+                                            td(colspan="6" height="25")
+
+
+                            td(width="15") &nbsp;
+

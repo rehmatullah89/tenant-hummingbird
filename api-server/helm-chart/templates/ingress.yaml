@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "app.fullname" . }}
+  namespace: production
+  labels:
+  {{- include "app.labels" . | nindent 4 }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: api.tenantinc.com
+    http:
+      paths:
+      - backend:
+          serviceName: hummingbird-api-server-service
+          servicePort: 3000
+        path: /
+      - backend:
+          serviceName: ba-hummingbird-api-server-service
+          servicePort: 3000
+        path: /v1/companies/oZLjgV25NY
+      - backend:
+          serviceName: ba-hummingbird-api-server-service
+          servicePort: 3000
+        path: /v1/companies/dNljDoN2PG
+      - backend:
+          serviceName: ba-hummingbird-api-server-service
+          servicePort: 3000
+        path: /v1/companies/Mnej8AbB3Z

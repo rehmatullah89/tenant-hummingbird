@@ -1,0 +1,227 @@
+"use strict";
+
+var models  = require(__dirname + '/../models');
+var settings    = require(__dirname + '/../config/settings.js');
+var Promise = require('bluebird');
+var validator = require('validator');
+var moment      = require('moment');
+var Notification = require(__dirname + '/../classes/notification.js');
+var Contact = require(__dirname + '/../classes/contact.js');
+var Hash = require(__dirname + '/../modules/hashes.js');
+var Hashes = Hash.init();
+var fillTemplate = require('es6-dynamic-template');
+
+class Activity {
+
+	constructor(data){
+		data = data || {};
+		this.id = data.id || null;
+		this.company_id = data.company_id || null;
+		this.contact_id = data.contact_id || null;
+		this.lease_id = data.lease_id || null;
+		this.invoice_id = data.invoice_id || null;
+		this.entered_by = data.entered_by || null;
+		this.activity_types_id = data.activity_types_id || null;
+		this.scheduled = data.scheduled;
+		this.occurred= data.occurred;
+		this.status = data.status || 0;
+		this.read = data.read || 0;
+		this.details = data.details;
+		this.content = data.content;
+
+		this.message ='';
+		this.EnteredBy = {};
+		this.ActivityTypes = {};
+		this.ActivityType = {};
+		this.Contact = {};
+		this.Lease = {};
+		this.Invoice = {};
+	}
+
+	loadActivityTypes(connection){
+		return models.Activity.loadActivityTypes(connection).map(at => {
+			this.ActivityTypes[at.name] = at;
+			return;
+		});
+	}
+	
+	save(connection){
+		var _this = this;
+		var data = {
+			company_id: this.company_id,
+			entered_by: this.entered_by,
+			activity_types_id: this.activity_types_id,
+			scheduled: this.scheduled,
+			occurred: this.occurred,
+			read: this.read,
+			content: this.content,
+			details: this.details
+		}
+
+		var contact_id = this.contact_id;
+		var lease_id = this.lease_id;
+		var invoice_id = this.invoice_id;
+
+		return models.Activity.save(connection, data, this.id)
+			.then(activity_id => {
+				if(this.id) return;
+				this.id = activity_id;
+				return Promise.resolve()
+					.then(() => {
+						if(!contact_id) return;
+						var contactData = {
+							contact_id: contact_id,
+							activity_id: this.id
+						}
+						return models.Activity.saveContactActivity(connection, contactData);
+					})
+					.then(() => {
+
+						if(!lease_id) return;
+						var leaseData = {
+							lease_id: lease_id,
+							activity_id: this.id
+						}
+						return models.Activity.saveLeaseActivity(connection, leaseData);
+					})
+					.then(() => {
+						if(!invoice_id) return;
+						var invoiceData = {
+							invoice_id: invoice_id,
+							activity_id: this.id
+						}
+						return models.Activity.saveInvoiceActivity(connection, invoiceData);
+					})
+
+			})
+			.then(() => {
+				return models.Setting.findContactsToNotify(connection, _this.activity_types_id, _this.company_id ).map(e => {
+
+					var n = {
+						company_id: _this.company_id,
+						contact_id: e.contact_id,
+						activity_id: _this.id,
+						email: e.email,
+						text:  e.text,
+						created: moment().utc().format('YYYY-MM-DD HH:mm:ss'),
+						read: 0
+					}
+
+					var notify = new Notification(n);
+					return notify.save(connection);
+				})
+			})
+	}
+
+	find(connection){
+		var _this = this;
+		if(!this.id) throw new Error("No id set");
+
+		return models.Activity.findById(connection, this.id).then(function(data){
+
+			_this.id = data.id;
+			_this.company_id = data.company_id;
+			_this.entered_by = data.entered_by;
+			_this.activity_types_id = data.activity_types_id;
+			_this.scheduled = data.scheduled;
+			_this.occurred= data.occurred;
+			_this.status = data.status;
+			_this.read = data.read;
+			_this.details = data.details;
+			_this.content = data.content;
+			_this.created = data.created;
+			return models.Activity.findActivityTypeById(connection, _this.activity_types_id)
+		}).then(at => {
+			_this.ActivityType = at;
+
+		})
+	}
+
+	findEnteredBy(connection, company_id){
+		this.EnteredBy = new Contact({id: this.entered_by});
+		return this.EnteredBy.find(connection, company_id);
+	}
+
+	findContact(connection, company_id){
+
+		return models.Activity.findActivityContact(connection, this.id)
+			.then(c => {
+				if(!c) return false;
+				return models.Contact.findById(connection, c.contact_id, company_id).then(c => {
+					this.Contact = c;
+					return true;
+				});
+			});
+	}
+
+	findInvoice(connection){
+		return models.Activity.findActivityInvoice(connection, this.id)
+			.then(i => {
+				if(!i) return false;
+				return models.Invoice.findById(connection, i.invoice_id).then(i => {
+					this.Invoice = i;
+					return true;
+				})
+			});
+	}
+
+	findLease(connection){
+		return models.Activity.findActivityLease(connection, this.id)
+			.then(l => {
+				if(!l) return false;
+				return models.Lease.findById(connection, l.lease_id)
+					.then(l => {
+						this.Lease = l;
+						return models.Address.findById(connection, l.id)
+					}).then(a => {
+						this.Lease.Address = a;
+						return true;
+					});
+				});
+	}
+
+	confirm(sockets){
+		return Promise.resolve().then(() => {
+			sockets.sendAlert("confirmation", this.entered_by, {
+				message: this.ActivityType.label,
+				can_undo: this.ActivityType.can_undo,
+				activity_id: Hashes.encode(this.id)
+			});
+			return true;
+		})
+
+	}
+
+	undo(connection){
+		return Promise.resolve().then(() => {
+			if (!this.ActivityType.can_undo) return;
+			return models.Activity.undo(connection, JSON.parse(this.details), this.ActivityType.table)
+
+		});
+
+	}
+
+	buildMessage(){
+
+		if(!this.ActivityType) return;
+
+		var entered_by = this.EnteredBy ? this.EnteredBy.first + ' ' +  this.EnteredBy.last : null;
+		var contact = this.Contact ? this.Contact.first + ' ' +  this.Contact.last : null;
+		var lease = this.Lease && this.Lease.Address ? this.Lease.Address.address + ' #' +  this.Lease.Address.unit + ' '  + this.Lease.Address.city + ' ' + this.Lease.Address.state : null;
+		var invoice = this.Invoice ? this.Invoice.number : null;
+
+		var params = {
+			entered_by,
+			contact,
+			lease,
+			invoice
+		}
+		// ES6 String literal templating
+
+		this.message = fillTemplate(this.ActivityType.template, params);
+		return true;
+	}
+
+}
+
+module.exports = Activity;

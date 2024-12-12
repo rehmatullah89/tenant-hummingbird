@@ -1,0 +1,733 @@
+"use strict";
+
+var models  = require(__dirname + '/../models');
+var settings    = require(__dirname + '/../config/settings.js');
+
+var Promise = require('bluebird');
+
+var QB = require('node-quickbooks');
+var validator = require('validator');
+var moment = require('moment');
+
+class Invoice {
+
+	constructor(data){
+
+		data = data || {};
+		
+		this.id = data.id || null;
+		this.lease_id = data.lease_id || null;
+		this.user_id = data.user_id || null;
+		this.number = data.number || null;
+		this.date = data.date || null;
+		this.due = data.due || null;
+		this.paid = data.paid || 0;
+		this.qboPromise = {};
+		this.qb_id = data.qb_id || null;
+		this.type = data.type || 'manual';
+		this.status = data.status || 1;
+		this.period_start = data.period_start || null;
+		this.period_end = data.period_end || null;
+		this.msg = '';
+		this.InvoiceLines = [];
+		this.Charges = []; // For API
+		this.Lease = {};
+		this.User = {};
+		this.Payments = [];
+		this.company_id = data.company_id || null;
+		this.discounts = {};
+		this.total_due = 0;
+		this.total_tax = 0;
+		this.sub_total = 0;
+		this.rent_total = 0;
+		this.utilities_total = 0;
+		this.total_payments = 0;
+		this.open_payments = 0;
+		this.balance = 0;
+
+		this.PaymentsToApply = [];
+		return this;
+	}
+
+	find(connection) {
+		var _this = this;
+		if (!_this.id) {
+			_this.msg = 'Invoice ID not defined';
+			return false;
+		}
+
+		return models.Billing.findInvoiceById(connection, _this.id)
+
+			.then(function(invoice){
+				if(!invoice) throw new Error('Invoice not found');
+				_this.lease_id = invoice.lease_id;
+				_this.user_id = invoice.user_id;
+				_this.number = invoice.number;
+				_this.date = invoice.date;
+				_this.due = invoice.due;
+				_this.status = invoice.status;
+				_this.period_start = invoice.period_start;
+				_this.period_end = invoice.period_end;
+				_this.paid = invoice.paid;
+				_this.qb_id = invoice.qb_id;
+				_this.type = invoice.type;
+
+				return _this.findInvoiceLines(connection).then(function(invoiceLines) {
+					if(_this.lease_id){
+						return _this.findLease(connection);
+					} else if (_this.user_id) {
+						return _this.findUser(connection);
+					}
+				})
+
+			}).then(() => _this.findPayments(connection))
+
+
+	}
+
+	findPayments(connection){
+
+		return models.Payment.findPaymentsByInvoiceId(connection, this.id).then(payments => {
+			this.Payments = payments;
+			return true;
+		})
+
+	}
+
+	addLine (line){
+		var _this  = this;
+
+		return Promise.resolve().then(() => {
+	
+			if(this.company_id != line.Product.company_id){
+				var error = new Error('Invalid company id');
+				error.code = 403;
+				throw error;
+			}
+			_this.InvoiceLines.push(line);
+			return true;
+		})
+	}
+	
+	findInvoiceLines(connection){
+		var _this = this;
+
+		if (!_this.id) {
+			_this.msg = 'Invoice ID not defined';
+			return false;
+		}
+
+		return models.Billing.findInvoiceLinesByInvoiceId(connection, _this.id).map(function(line){
+
+			var invoiceLine = new InvoiceLine(line);
+			return invoiceLine.find(connection)
+				.then(function(){
+					_this.InvoiceLines.push(invoiceLine);
+					return true;
+				})
+			//
+			//
+			// return Promise.resolve().then(function(){
+			// 	if(line.product_id) {
+			// 		return invoiceLine.findProduct(connection).then(function () {
+			//
+			// 		}).then(function () {
+			// 			return invoiceLine.findTaxLines(connection);
+			// 		}).then(function () {
+			// 			return invoiceLine.findDiscountLines(connection);
+			// 		});
+			// 	}
+			// })
+
+		})
+	}
+
+	findUser(connection){
+		var _this = this;
+		return Promise.resolve().then(function(){
+			return _this;
+		})
+	}
+
+	findLease(connection){
+		var _this = this;
+		return Promise.resolve().then(function(){
+
+			var lease = new Lease({id: _this.lease_id});
+			return lease.find(connection).then(() => {
+				return lease.getTenants(connection);
+			}).then(() => {
+				return lease.findUnit(connection);
+			}).then(() => {
+
+				_this.Lease = lease;
+				return true;
+			});
+		})
+	}
+
+	
+	//TODO remove
+	getValues(){
+		var _this = this;
+
+		var data = {
+			id: _this.id,
+			lease_id: _this.lease_id,
+			user_id: _this.user_id,
+			number: _this.number,
+			date: _this.date,
+			due: _this.due,
+			status: _this.status,
+			period_start: _this.period_start,
+			period_end: _this.period_end,
+			paid: _this.paid,
+			balance: _this.balance,
+			utilities_total:  _this.utilities_total,
+			rent_total: _this.rent_total,
+			InvoiceLines:[],
+			Payments:[],
+			total_due: _this.total_due,
+			total_tax: _this.total_tax,
+			total_payments: _this.total_payments,
+			discounts: _this.discounts,
+			sub_total: _this.sub_total,
+			Lease: _this.Lease
+		}
+
+		_this.InvoiceLines.forEach(function(inLine){
+			data.InvoiceLines.push(inLine.getValues());
+		});
+		if(_this.Payments){
+			data.Payments = _this.Payments
+		}
+
+		return data;
+	}
+
+	getMaxInvoiceNumber (connection, company_id){
+		var _this = this;
+		return Promise.resolve().then(function(){
+			return models.Billing.findMaxInvoiceNumber(connection, company_id);
+		});
+	}
+
+	getDueDate(connection, company_id){
+		var _this = this;
+		return Promise.resolve().then(function(){
+			// return models.Billing.findMaxInvoiceNumber(connection, company_id);
+		});
+	}
+
+
+	validate(){
+		var _this = this;
+		var error = false;
+		return Promise.resolve().then(() => {
+			if(_this.lease_id && !validator.isInt(_this.lease_id + '')) error = 'Lease Id must be an integer or be null';
+
+			if(_this.user_id && !validator.isInt(_this.user_id + '')) error = 'User Id must be an integer or be null';
+
+			if(!_this.user_id && !_this.lease_id) error = 'User id or Lease id must not be empty';
+
+			if(!validator.isNumeric(_this.number + '')) error = 'Invoice number must be numeric';
+
+			if(!validator.isDate(_this.date + '')) error = 'Date must be a date';
+
+			if(!validator.isDate(_this.due + '')) error = 'Due must be a date';
+
+			if(error) {
+				var e = new Error(error);
+				e.code = 400;
+				throw e
+			}
+		});
+
+	}
+
+	save(connection){
+		var _this = this;
+		var insert_id = null;
+		return Promise.resolve().then(function() {
+
+			if(!_this.date) _this.date = moment().format('YYYY-MM-DD');
+
+			if (!_this.number) {
+				return _this.getMaxInvoiceNumber (connection, _this.company_id).then(function (maxNum) {
+					_this.number = parseInt(maxNum);
+					_this.number++;
+					return true;
+				});
+			}
+			return true;
+
+		}).then(function() {
+			if (!_this.validate()) throw _this.msg;
+			return true;
+		}).then(function() {
+
+			var save = {
+				user_id: _this.user_id,
+				lease_id: _this.lease_id,
+				date: _this.date,
+				due: _this.due,
+				period_start: _this.period_start,
+				period_end: _this.period_end,
+				number: _this.number,
+				// paid: _this.paid,
+				type: _this.type,
+				status: _this.status
+			};
+
+			return models.Invoice.saveInvoice(connection, save, _this.id)
+				.then(result => (result.insertId)?  _this.id =  result.insertId: true)
+				.then(() => _this.killInvoiceParts(connection))
+				.then(function(){
+					console.log("INVsaveOICE", _this.id);
+					var promises = [];
+					_this.InvoiceLines.forEach(function(invoiceLine){
+						invoiceLine.invoice_id = _this.id;
+
+						console.log("invoiceLine", invoiceLine);
+						promises.push(invoiceLine.save(connection));
+					});
+					return Promise.all(promises);
+				});
+
+		}).then(function(saveRes){
+
+			if(!_this.id && insert_id){
+				_this.id = insert_id;
+			}
+			//return _this.sendToQuickbooks();
+			return true;
+		})
+
+	}
+
+	killInvoiceParts(connection) {
+		var _this = this;
+		if (!_this.id) return true;
+		var promises = [];
+
+		return models.Billing.deleteInvoiceLines(connection, _this.id);
+	}
+
+	sendToQuickbooks(){
+		//  Check if QuickBooks is set up
+		// create job to transfer to QuickBooks.
+		return true;
+	}
+
+	updatePaid(connection) {
+		var _this = this;
+		var totalPaid = 0;
+
+		return Promise.resolve().then(function() {
+			if(!_this.id) throw new Error("Invoice id not set");
+			var totalBilled = _this.getTotal();
+			_this.AppliedPayments.forEach(function (payment) {
+				totalPaid += (payment.amount * 100)
+			});
+			if (totalBilled == (totalPaid / 100)) {
+				return models.Invoice.saveInvoice(connection, {paid: 1}, _this.id);
+			} else {
+				return models.Invoice.saveInvoice(connection, {paid: 0}, _this.id);
+			}
+		}).then(function(result){
+			return true;
+		}).catch(function(err){
+			_this.msg = err.toString();
+			return false;
+		});
+	}
+
+	total (){
+
+		var _this = this;
+		var discountsExcludedFromTax = 0;
+		var lineTotal = 0;
+		var discountTotals = {};
+		var totalTax = 0;
+		var totalDue = 0;
+		var subTotal = 0;
+		var discountTotal = 0;
+		var rentTotal = 0;
+		var utilitiesTotal = 0;
+		var taxamt = 0;
+
+		var discounts = 0;
+
+		_this.InvoiceLines.forEach(line => line.calculateLineTotal());
+
+		totalDue = subTotal + totalTax;
+		_this.sub_total = Math.round(this.InvoiceLines.reduce( (a,line) => a + line.subtotal, 0) * 1e2) / 1e2;
+		_this.total_due = Math.round(this.InvoiceLines.reduce( (a,line) => a + line.total, 0)  * 1e2) / 1e2;
+		_this.total_tax = Math.round(this.InvoiceLines.reduce( (a,line) => a + line.totalTax, 0)  * 1e2) / 1e2;
+
+		_this.discounts = Math.round(this.InvoiceLines.reduce( (a,line) => a + line.totalDiscounts, 0)  * 1e2) / 1e2;
+		_this.utilities_total = Math.round(this.InvoiceLines.reduce( (a,line) => {
+			if(line.Product.default_type == 'rent') return a;
+			return a + line.total;
+		}, 0)  * 1e2) / 1e2;
+
+		_this.rent_total = Math.round(this.InvoiceLines.reduce( (a,line) => {
+			if(line.Product.default_type != 'rent') return a;
+			return a + line.total;
+		}, 0)  * 1e2) / 1e2;
+
+
+		for(var d in _this.discounts ){
+			_this.discounts[d].total = ( _this.discounts[d].total/100 ).toFixed(2)
+		}
+
+		_this.Payments.forEach(function(payment){
+			_this.total_payments += payment.amount;
+		});
+
+		var balance = _this.total_due - _this.total_payments;
+		_this.balance = Math.round(balance * 1e2) / 1e2;
+
+		if(_this.balance <= 0){
+			_this.paid = 1;
+		}
+
+		return Promise.resolve();
+
+
+	}
+
+
+	prorate(amt, period_start, period_end, lease_start, lease_end ){
+
+		var activeServiceStart = (lease_start > period_start)? lease_start: period_start;
+		var activeServiceEnd = (!lease_end || lease_end > period_end)? period_end: lease_end;
+
+		console.log("activeServiceStart", activeServiceStart);
+		console.log("activeServiceEnd", activeServiceEnd);
+
+		var totalDaysInBillingPeriod = period_end.diff(period_start, 'days') + 1;
+		var totalDaysActiveService = activeServiceEnd.diff(activeServiceStart, 'days') + 1; // this bills for the current day
+		console.log("totalDaysInBillingPeriod", totalDaysInBillingPeriod);
+		console.log("totalDaysActiveService", totalDaysActiveService);
+		var prorateMultiplier = totalDaysActiveService / totalDaysInBillingPeriod;
+		var per_day = amt / totalDaysInBillingPeriod;
+		console.log("per_day", per_day);
+		console.log("total", per_day * totalDaysActiveService);
+
+		var proratedRent = Math.round((per_day * totalDaysActiveService)* 1e2) /1e2;
+		
+		return (proratedRent>0)? proratedRent : 0;
+	}
+
+	makeFromServices(connection, services, lease, period_start, period_end, billdate, discounts){
+		var _this = this;
+		var discounts = discounts || [];
+		var promotion = {};
+		var lastBillDate = moment();
+		var invoice_lines = [];
+		
+		return Promise.resolve().then(() => {
+			if(discounts.length) return true;
+
+			return models.Promotion.findActiveDiscounts(connection, _this.lease_id, period_start.format('YYYY-MM-DD')).map(function(d){
+
+				var discount = new Discount({
+					id: d.id
+				});
+
+				return discount.find(connection).then(function(){
+					discounts.push(discount);
+					return true;
+				});
+			});
+
+		}).then(function(){
+
+			return Promise.mapSeries(services, function(service){
+
+				var invoice_lines = [];
+
+				var lease_end = !lease.monthly && lease.end_date != null ?  moment(lease.end_date).startOf('day'): null;
+
+				var billedProducts = [];
+
+				
+
+				var product = {
+					type: service.Product.default_type || 'product',
+					label: service.Product.name,
+					taxable: service.taxable,
+					defaultPrice: service.price,
+					recurring: service.recurring,
+					lines:[],
+				}
+				var line = {};
+
+				var invoice_line = new InvoiceLine({
+					product_id:     service.product_id,
+					service_id:     service.id,
+					description:     service.description,
+					invoice_id:     null,
+					discount_id:    null,
+					qty:            service.qty,
+					// cost:           service.amount || 0,
+					Product:        service.Product || null,
+					date:           billdate.format('YYYY-MM-DD'),
+					Service:        service
+				});
+
+
+
+				if(!service.recurring){
+
+					if(lease_end && period_start > lease_end) return;
+
+					product.lines.push({
+						start_date: period_start.clone(),
+						end_date: period_end.clone(),
+						amount: service.price
+					});
+
+
+
+					invoice_line.start_date = period_start.clone().format('YYYY-MM-DD');
+					invoice_line.end_date = period_end.clone().format('YYYY-MM-DD');
+					invoice_line.cost = product.lines.reduce((a,b) => { return a + Math.round(b.amount * 1e2)/ 1e2}, 0);
+
+
+				} else {
+					var current_start_date = period_start.clone();
+
+					var billing_end = lease_end && (period_end.format('x') > lease_end.format('x')) ? lease_end : period_end;
+
+
+
+					while (current_start_date.format('x') < billing_end.format('x') ){
+
+						line = {
+							start_date: current_start_date.clone(),
+							end_date: lease.getNextBillingDate(current_start_date.clone()).subtract(1, 'day'),
+						};
+
+						if(!service.prorate) {
+							line.amount = service.price;
+						} else {
+							line.amount = _this.prorate(service.price, line.start_date, line.end_date, moment(lease.start_date, 'YYYY-MM-DD'), lease_end);
+						}
+
+						//CalculateDiscounts
+						// get last bill date for discounts
+						lastBillDate = line.end_date.clone();
+						if(product.type =='rent'){
+							discounts.filter(d => {
+								var leaseStartObj = moment(lease.start_date, 'YYYY-MM-DD');
+								var periodStart = (leaseStartObj < line.start_date)? line.start_date.startOf('day'):leaseStartObj;
+
+								return moment(d.start, 'YYYY-MM-DD').format('x') <= periodStart.format('x') && moment(d.end).format('x') >= line.end_date.format('x');
+							}).map(d => {
+								var discAmt = 0;
+
+								switch(d.type){
+									case 'percent':
+										discAmt += Math.round(line.amount * d.value) / 1e2;
+										break;
+									case 'dollar':
+										discAmt += Math.round(d.value * 1e2) / 1e2;
+										break;
+								}
+
+								var dLine = new DiscountLine({
+									discount_id: d.id,
+									pretax: d.pretax,
+									amount: (discAmt>line.amount)?line.amount:discAmt,
+									Promotion: d.Promotion
+								});
+
+								invoice_line.addDiscount(dLine);
+							})
+						}
+
+						product.lines.push(line);
+						current_start_date = lease.getNextBillingDate(current_start_date.add(1, 'day'));
+					}
+
+
+
+					invoice_line.start_date = period_start.clone().format('YYYY-MM-DD');
+					invoice_line.end_date = period_end.clone().format('YYYY-MM-DD');
+					invoice_line.cost = product.lines.reduce((a,b) => { return a + Math.round(b.amount * 1e2)/ 1e2}, 0);
+				}
+
+				// invoice_lines.push(invoice_line);
+				billedProducts.push(product);
+
+				return invoice_line.make(connection).then(function(){
+					return _this.addLine(invoice_line);
+
+				})
+			})
+		}).then(function(invoice_lines_res){
+
+			return true;
+
+		}).then(function(){
+
+			_this.total();
+			return true;
+		}).catch(function(err){
+			console.log(err);
+			console.log(err.stack);
+			throw err;
+		})
+
+
+	}
+
+	calculatePayments(){
+		var _this = this;
+
+		var rentTotal = _this.rentTotal;
+		var utilitiesTotal = _this.utilitiesTotal;
+		if(!this.Lease.PaymentMethods) return;
+		this.Lease.PaymentMethods.forEach(function(pm, i){
+			console.log("Payment Method", pm);
+
+			if(pm.active && pm.auto_charge){
+				var rentPercentage = (pm.rent / _this.Lease.rent) * _this.rentTotal;
+
+				console.log('**** RENT *****');
+				//console.log(rentPercentage);
+				//console.log(_this.rentTotal);
+				/*
+				console.log(_this.Lease.rent);
+				console.log(pm.rent);
+				*/
+				// if last payment method, bill the remainder to ensure we collect exactly the amount due.
+				if( i == _this.Lease.PaymentMethods.length - 1){
+					_this.Lease.PaymentMethods[i].rentTotal = Math.round(rentTotal * 1e2) / 1e2;
+					_this.Lease.PaymentMethods[i].utilitiesTotal =  Math.round(utilitiesTotal * 1e2) / 1e2;
+				} else {
+					_this.Lease.PaymentMethods[i].rentTotal = Math.round(rentPercentage * 1e2) / 1e2;
+					// Dont multiply by 100 since percentage is in whole number form
+					_this.Lease.PaymentMethods[i].utilitiesTotal =  Math.round(_this.utilitiesTotal * pm.utilities) / 1e2;
+					rentTotal -=  _this.Lease.PaymentMethods[i].rentTotal;
+					utilitiesTotal -=  _this.Lease.PaymentMethods[i].utilitiesTotal;
+				}
+
+
+
+				_this.Lease.PaymentMethods[i].total = (Math.round((_this.Lease.PaymentMethods[i].rentTotal + _this.Lease.PaymentMethods[i].utilitiesTotal) * 1e2) / 1e2);
+			}
+		});
+		console.log("paymentMethods", this.Lease.PaymentMethods);
+		return true;
+	}
+
+	getOpenPayments(connection){
+		var _this = this;
+		var openPayments = 0;
+		var balance = _this.balance;
+		return models.Payment.findPaymentOpenPaymentsByLeaseId(connection, this.lease_id).map(function(pay){
+			var payment = new Payment(pay);
+			return payment.find(connection).then(function(){
+				var remainingPayment = Math.round((payment.amount - payment.totalApplied) * 1e2) / 1e2;
+
+				if(balance > 0 && balance <= remainingPayment){
+					_this.PaymentsToApply.push({
+						payment_id: payment.id,
+						amount: balance,
+						remaining: Math.round((remainingPayment - balance) * 1e2) / 1e2
+					});
+					openPayments += balance;
+					balance = 0;
+				} else if(balance > 0){
+					_this.PaymentsToApply.push({
+						payment_id: payment.id,
+						amount: remainingPayment,
+						remaining: 0
+					});
+					openPayments += remainingPayment;
+					balance -= remainingPayment;
+				}
+				_this.openPayments = openPayments;
+			});
+		}).then(function(){
+			if(openPayments == 0) return;
+			var amtLeftToReduce = openPayments;
+
+			console.log("OPENPAYMENT", openPayments);
+			var paymentTotal = _this.Lease.PaymentMethods.reduce((a,b)=>{return a + b.total }, 0);
+			console.log("paymentTotal", paymentTotal);
+
+			_this.Lease.PaymentMethods.map((pm, i) => {
+				console.log(i, _this.Lease.PaymentMethods[i].total);
+				var percentageOfTotal = _this.Lease.PaymentMethods[i].total / paymentTotal;
+				console.log("percentageOfTotal", percentageOfTotal);
+
+
+				var amtToReduce = Math.round( (openPayments * percentageOfTotal) * 1e2) / 1e2;
+				console.log("ToReduce", amtToReduce) ;
+
+				if(amtLeftToReduce > 0 && _this.balance >= 0){
+					//If the last method, reduce by amount remaining. This ensure we apply exactly the right discount amount
+					if( i == _this.Lease.PaymentMethods.length -1){
+						_this.Lease.PaymentMethods[i].total -=  Math.round(amtLeftToReduce * 1e2) / 1e2;
+					} else {
+						_this.Lease.PaymentMethods[i].total -=  amtToReduce;
+					}
+					amtLeftToReduce -= amtToReduce;
+					_this.balance -= amtToReduce;
+				}
+			});
+
+
+		});
+
+	}
+
+	void_invoice(connection){
+		var _this = this;
+		if (!_this.id) {
+			_this.msg = 'Invoice ID not defined';
+			return false;
+		}
+
+		var save = {
+			status: -1
+		};
+
+		return models.Invoice.saveInvoice(connection, save, _this.id);
+
+	}
+
+
+	totalInvoiceCredit(date){
+		return this.InvoiceLines.reduce( (a, line) => a + line.Credit.total,0)
+	}
+
+
+	verifyAccess(connection, company_id){
+		var _this = this;
+		if (!_this.id) {
+			var error = new Error('Invoice ID not defined');
+			error.code = 500;
+			throw error;
+		}
+		return models.Invoice.findCompanyIdByInvoice(connection, _this.id).then(cid => {
+			if(cid == company_id) return true;
+			var error = new Error('You are not authorized to view this resource.');
+			error.code = 403;
+			throw error;
+		});
+	}
+
+}
+
+module.exports = Invoice;
+
+var Lease = require(__dirname + '/lease.js');
+var InvoiceLine  = require(__dirname + '/invoice_lines.js');
+var Payment  = require(__dirname + '/payment.js');
+var Discount  = require(__dirname + '/discount.js');
+var DiscountLine  = require(__dirname + '/discount_lines.js');

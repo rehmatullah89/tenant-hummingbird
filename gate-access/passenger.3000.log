@@ -1,0 +1,52 @@
+[ N 2020-02-02 22:05:14.9744 194/T1 age/Wat/WatchdogMain.cpp:1373 ]: Starting Passenger watchdog...
+[ N 2020-02-02 22:05:15.0063 197/T1 age/Cor/CoreMain.cpp:1340 ]: Starting Passenger core...
+[ N 2020-02-02 22:05:15.0080 197/T1 age/Cor/CoreMain.cpp:256 ]: Passenger core running in multi-application mode.
+[ N 2020-02-02 22:05:15.0321 197/T1 age/Cor/CoreMain.cpp:1015 ]: Passenger core online, PID 197
+[ N 2020-02-02 22:05:17.8382 197/T5 age/Cor/SecurityUpdateChecker.h:519 ]: Security update check: no update found (next check in 24 hours)
+App 238 output: THIS IS PASSENGER
+App 238 output: aquired undefined
+App 238 output: ERROR  { Error: 404 Not Found
+App 238 output:     at /home/app/hummingbird/app.js:53:12
+App 238 output:     at Layer.handle [as handle_request] (/home/app/hummingbird/node_modules/express/lib/router/layer.js:95:5)
+App 238 output:     at trim_prefix (/home/app/hummingbird/node_modules/express/lib/router/index.js:317:13)
+App 238 output:     at /home/app/hummingbird/node_modules/express/lib/router/index.js:284:7
+App 238 output:     at Function.process_params (/home/app/hummingbird/node_modules/express/lib/router/index.js:335:12)
+App 238 output:     at next (/home/app/hummingbird/node_modules/express/lib/router/index.js:275:10)
+App 238 output:     at app.use (/home/app/hummingbird/app.js:36:2)
+App 238 output:     at process._tickCallback (internal/process/next_tick.js:68:7) code: 404 }
+App 238 output: ERROR CODEZZZ 404
+App 238 output: Error: 404 Not Found
+App 238 output:     at /home/app/hummingbird/app.js:53:12
+App 238 output:     at Layer.handle [as handle_request] (/home/app/hummingbird/node_modules/express/lib/router/layer.js:95:5)
+App 238 output:     at trim_prefix (/home/app/hummingbird/node_modules/express/lib/router/index.js:317:13)
+App 238 output:     at /home/app/hummingbird/node_modules/express/lib/router/index.js:284:7
+App 238 output:     at Function.process_params (/home/app/hummingbird/node_modules/express/lib/router/index.js:335:12)
+App 238 output:     at next (/home/app/hummingbird/node_modules/express/lib/router/index.js:275:10)
+App 238 output:     at app.use (/home/app/hummingbird/app.js:36:2)
+App 238 output:     at process._tickCallback (internal/process/next_tick.js:68:7)
+[ N 2020-02-02 22:06:24.5441 193/T1 age/Wat/WatchdogMain.cpp:1373 ]: Starting Passenger watchdog...
+[ N 2020-02-02 22:06:24.5699 196/T1 age/Cor/CoreMain.cpp:1340 ]: Starting Passenger core...
+[ N 2020-02-02 22:06:24.5706 196/T1 age/Cor/CoreMain.cpp:256 ]: Passenger core running in multi-application mode.
+[ N 2020-02-02 22:06:24.5866 196/T1 age/Cor/CoreMain.cpp:1015 ]: Passenger core online, PID 196
+[ N 2020-02-02 22:06:27.3502 196/T5 age/Cor/SecurityUpdateChecker.h:519 ]: Security update check: no update found (next check in 24 hours)
+App 237 output: THIS IS PASSENGER
+App 237 output: aquired undefined
+App 237 output: ERROR  { Error: 404 Not Found
+App 237 output:     at /home/app/hummingbird/app.js:53:12
+App 237 output:     at Layer.handle [as handle_request] (/home/app/hummingbird/node_modules/express/lib/router/layer.js:95:5)
+App 237 output:     at trim_prefix (/home/app/hummingbird/node_modules/express/lib/router/index.js:317:13)
+App 237 output:     at /home/app/hummingbird/node_modules/express/lib/router/index.js:284:7
+App 237 output:     at Function.process_params (/home/app/hummingbird/node_modules/express/lib/router/index.js:335:12)
+App 237 output:     at next (/home/app/hummingbird/node_modules/express/lib/router/index.js:275:10)
+App 237 output:     at app.use (/home/app/hummingbird/app.js:36:2)
+App 237 output:     at process._tickCallback (internal/process/next_tick.js:68:7) code: 404 }
+App 237 output: ERROR CODEZZZ 404
+App 237 output: Error: 404 Not Found
+App 237 output:     at /home/app/hummingbird/app.js:53:12
+App 237 output:     at Layer.handle [as handle_request] (/home/app/hummingbird/node_modules/express/lib/router/layer.js:95:5)
+App 237 output:     at trim_prefix (/home/app/hummingbird/node_modules/express/lib/router/index.js:317:13)
+App 237 output:     at /home/app/hummingbird/node_modules/express/lib/router/index.js:284:7
+App 237 output:     at Function.process_params (/home/app/hummingbird/node_modules/express/lib/router/index.js:335:12)
+App 237 output:     at next (/home/app/hummingbird/node_modules/express/lib/router/index.js:275:10)
+App 237 output:     at app.use (/home/app/hummingbird/app.js:36:2)
+App 237 output:     at process._tickCallback (internal/process/next_tick.js:68:7)

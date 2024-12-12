@@ -1,0 +1,1032 @@
+"use strict";
+
+var models  = require(__dirname + '/../models');
+var settings    = require(__dirname + '/../config/settings.js');
+
+var Promise = require('bluebird');
+var QB = require('node-quickbooks');
+var validator = require('validator')
+var moment      = require('moment');
+
+/* Authorize.net */
+
+var paymentTransactionFuncs = require(__dirname + '/../modules/authorizenet/PaymentTransactions');
+var customerProfileFuncs = require(__dirname + '/../modules/authorizenet/CustomerProfiles');
+
+var createCustomerProfile           = Promise.promisify(customerProfileFuncs.createCustomerProfile);
+var createCustomerPaymentProfile    = Promise.promisify(customerProfileFuncs.createCustomerPaymentProfile);
+var deleteCustomerPaymentProfile    = Promise.promisify(customerProfileFuncs.deleteCustomerPaymentProfile);
+var chargeCustomerProfile           = Promise.promisify(paymentTransactionFuncs.chargeCustomerProfile);
+
+/* Forte */
+
+const crypto = require('crypto');
+
+var forteACHFuncs = require(__dirname + '/../modules/forte');
+
+
+
+class PaymentMethod {
+
+    constructor(data){
+
+        data = data || {};
+        this.id = data.id;
+        this.lease_id = data.lease_id;
+        this.user_id = data.user_id;
+        this.address_id = data.address_id;
+        this.unit_number = data.unit_number;
+        this.company = data.company;
+        this.first = data.first;
+        this.last = data.last;
+        this.token = data.token;
+        this.achtoken = data.achtoken;
+        this.name_on_card = data.name_on_card;
+        this.exp_warning = data.exp_warning;
+        this.auto_charge = data.auto_charge;
+        this.active = data.active;
+        this.type = data.type;
+        this.card_end = data.card_end;
+        this.card_type = data.card_type;
+        this.nonce = '';
+        this.rent = data.rent;
+        this.utilities = data.utilities;
+        this.Address = {};
+        this.Lease = {};
+        this.User = {};
+        this.Property = {};
+
+        this.msg = '';
+    }
+
+    /*
+    *
+    * This function takes an address object and sets is to the payment method
+    *
+     */
+    setAddress(address){
+        var _this = this;
+        _this.Address = address;
+        _this.address_id = address.id;
+        return true;
+    }
+
+    update(connection){
+        var _this = this;
+
+        var save = {
+            auto_charge: _this.auto_charge
+        };
+
+        return Promise.resolve().then(function() {
+            if(!_this.id) throw "Payment method id not set";
+
+            return models.Payment.savePaymentMethod(connection, save, _this.id);
+
+        }).then(function(saveRes){
+
+            return true;
+        }).catch(function(err){
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        });
+
+    }
+
+    save(connection, data, company_id){
+
+        var _this = this;
+        var card = {};
+        var ach = {};
+        var configVals = {};
+
+
+        return Promise.resolve().then(function() {
+
+            if(!_this.type) throw "Payment method type not set";
+
+
+            switch (_this.type) {
+                case 'check':
+                case 'cash':
+                    return true;
+                    break;
+                case "card":
+                    if(!data) throw "Credit Card not set";
+                    card = new CreditCard(data);
+	                if(!card.validate()) throw card.msg;
+                    _this.name_on_card  = card.name_on_card;
+                    _this.card_end      = card.card_number.substr(card.card_number.length - 4);
+                    _this.exp_warning   = moment(card.exp_mo + '/20' + card.exp_yr, 'MM/YYYY').subtract(6, 'weeks').format('YYYY-MM-DD');
+                    _this.card_type     = card.getCardType();
+                    return true;
+                    break;
+
+                case "ach":
+
+                    if(!data) throw "Account Data not set";
+                    ach = new ACH(data);
+                    if(!ach.validate()) throw ach.msg;
+                    _this.name_on_card  = ach.account_holder;
+                    _this.card_end      = ach.account_number.substr(ach.account_number.length - 4);
+                    _this.card_type     = ach.account_type;
+                    return true;
+                    break;
+            }
+
+
+        }).then(function(setupRes){
+
+            if (!_this.validate()) {
+                throw _this.msg;
+            }
+
+            // get external connection values
+            if(_this.type == 'check' || _this.type == 'cash') return true;
+
+            return _this.getExternalConnectionValues(connection, company_id).then(function(configValsRes){
+                configVals = configValsRes;
+
+                if(!configVals) throw _this.msg;
+
+                // get customer token
+
+                return _this.getCustomerProfileToken(connection, configVals).catch(function(err){
+	                console.log(err.stack);
+	                console.log("Error", err);
+                });
+
+            }).then(function(token) {
+	            if (!token) throw _this.msg;
+	            configVals.customerToken = token;
+                return true;
+            });
+        }).then(function(configValsRes){
+            // save remote
+            switch (_this.type) {
+                case 'check':
+                case 'cash':
+                    return true;
+                    break;
+                case "card":
+                    return card.save(configVals, data).then(function(paymentTokenResponse) {
+                        if (!paymentTokenResponse) throw card.msg;
+                        _this.token = card.token;
+                        return true;
+                    });
+                    break;
+                case "ach":
+                    console.log('*****************');
+                    return ach.save(configVals, data).then(function(paymentTokenResponse) {
+                        if (!paymentTokenResponse) throw ach.msg;
+                        _this.token = ach.token;
+                        return true;
+                    });
+                    break;
+            }
+            throw "Payment method type not found";
+
+        }).then(function(setupRes){
+
+            // save local
+
+            var save = {
+                lease_id: _this.lease_id,
+                address_id: _this.address_id,
+                unit_number: _this.unit_number,
+                company: _this.company,
+                first: _this.first,
+                last: _this.last,
+                token: _this.token,
+                name_on_card: _this.name_on_card,
+                exp_warning: _this.exp_warning,
+                auto_charge: _this.auto_charge || 0,
+                active: _this.active,
+                type: _this.type,
+                card_end: _this.card_end,
+                card_type: _this.card_type
+            };
+
+            return models.Payment.savePaymentMethod(connection, save).then(function (paymethodId) {
+                _this.id = paymethodId;
+                return true;
+            });
+
+        }).then(function(saveRes){
+
+            if(!saveRes) throw _this.msg;
+            return true;
+
+        }).catch(function(err){
+            console.log(err);
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        })
+    }
+
+    charge(connection, payment, company_id, dryrun){
+        var _this = this;
+
+        return Promise.resolve().then(function() {
+
+            switch(_this.type){
+                case "cash":
+                case "check":
+                    return true;
+                    break;
+                case "card":
+                    return _this.chargeCard(connection, payment, company_id, dryrun);
+                    break;
+                case "ach":
+                    return _this.chargeACH(connection, payment, company_id, dryrun);
+                    break;
+            }
+        });
+    }
+
+    chargeCard(connection, payment, company_id, dryrun){
+
+        var _this = this;
+        var configVals = {};
+        return Promise.resolve().then(function(){
+
+            return _this.getExternalConnectionValues(connection, company_id);
+
+        }).then(function(configValsRes){
+
+            configVals = configValsRes;
+            if(!configVals) throw "This account is not set up to process credit cards";
+            // Save or retrieve the account token for the payment gateway
+            return _this.getCustomerProfileToken(connection, configVals);
+
+        }).then(function(customerTokenRes){
+
+            if(dryrun) return true;
+            return chargeCustomerProfile(configVals, payment, _this.Lease.token, _this.token).then(function(refId){
+                payment.transaction_id = refId;
+                return true;
+
+            }).catch(function(err){
+                throw err.msg;
+            })
+
+        }).catch(function(err){
+            console.log(err.toString());
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        })
+    }
+
+    chargeACH(connection, payment, company_id, dryrun){
+
+        var _this = this;
+        var configVals = {};
+        return Promise.resolve().then(function(){
+
+            return _this.getExternalConnectionValues(connection, company_id);
+
+        }).then(function(configValsRes){
+
+            configVals = configValsRes;
+
+            if(!configVals) throw "This account is not set up to process ACH";
+
+            // Save or retrieve the account token for the payment gateway
+            return _this.getCustomerProfileToken(connection, configVals);
+
+        }).then(function(customerTokenRes){
+
+            if(dryrun) return true;
+            return forteACHFuncs.chargeCustomerProfile(configVals, payment, _this.Lease.achtoken, _this.token).then(function(body){
+                payment.transaction_id = body.transaction_id;
+                return true;
+
+            }).catch(function(err){
+                throw err.error.response.response_desc;
+            })
+
+        }).catch(function(err){
+            console.log(err.toString());
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        })
+
+    }
+
+    getExternalConnectionValues(connection, company_id){
+        var _this = this;
+        var property;
+
+        return Promise.resolve().then(function() {
+            // Get property level connections first
+
+            if (!_this.Property.id) return false;
+
+            return models.Property.findConnections(connection, _this.Property.id, _this.type).then(function (propertyConnections) {
+
+                if (propertyConnections) {
+                    var vals = JSON.parse(propertyConnections.value);
+                    vals.name = propertyConnections.name;
+                    return vals;
+                }
+
+                return false;
+            })
+        }).then(function(connections){
+
+            if(connections) return connections;
+            // If no property connections, get company settings
+
+
+            switch(_this.type){
+                case 'card':
+                    var promises = [
+                        models.Setting.findCompanySetting(connection, 'authnetLogin', company_id),
+                        models.Setting.findCompanySetting(connection, 'authnetKey', company_id)
+                    ];
+
+                    return Promise.all(promises).spread(function(login, key){
+                        if(!login.value || !key.value) return false;
+						console.log("Login", login);
+						console.log("Key", key);
+                        return {
+                            name: 'authorizenet',
+                            authnetLogin: login.value,
+                            authnetKey: key.value
+                        }
+                    });
+                    break;
+                case 'ach':
+
+                    var promises = [
+                        models.Setting.findCompanySetting(connection, 'forteLogin', company_id),
+                        models.Setting.findCompanySetting(connection, 'forteKey', company_id),
+                        models.Setting.findCompanySetting(connection, 'forteOrganizationId', company_id),
+                        models.Setting.findCompanySetting(connection, 'forteLocationId', company_id),
+                    ];
+                    return Promise.all(promises).spread(function(login, key, org, loc){
+
+                        if(!login.value || !key.value || !org.value || !loc.value)  return false;
+                        return {
+                            name: 'forte',
+                            forteKey: key.value,
+                            forteLogin: login.value,
+                            forteOrganizationId: org.value,
+                            forteLocationId: loc.value
+                        }
+                    });
+                    break;
+                default:
+                    return false;
+            }
+
+
+        }).then(function(connections){
+
+            if(!connections) {
+                if(_this.type == 'card') throw "This account is not set up to process credit cards.";
+                if(_this.type == 'ach') throw "This account is not set up to process ACH.";
+
+                throw "This account is not set up to process payments.";
+            }
+
+            return connections;
+
+        }).catch(function(err){
+            console.log(err.stack);
+            console.log(err);
+            return false;
+        });
+
+    }
+
+    getCustomerProfileToken(connection, config){
+        var _this = this;
+
+        return Promise.resolve().then(function() {
+
+            switch(config.name){
+                case 'authorizenet':
+                    if (!_this.Lease.token) {
+
+                        //Todo Edit to include user Id when necessary
+                        var accountHolder = {
+                            first: _this.first,
+                            last: _this.last,
+                            lease_id: _this.Lease.id
+                        };
+
+                        return createCustomerProfile(config, accountHolder ).catch(function(err){
+	                        throw err.msg;
+
+                        }).then(function (tokenRes) {
+
+	                        _this.Lease.token = tokenRes;
+
+	                        return models.Lease.save(connection, {token: _this.Lease.token}, _this.Lease.id).then(function(response){
+                                return _this.Lease.token;
+                            })
+
+                        }).catch(function(err){
+
+                            throw err;
+                        })
+                    }
+                    return _this.Lease.token;
+                    break;
+                case 'forte':
+                    //Todo Edit to include user Id when necessary
+
+                    if (!_this.Lease.achtoken) {
+
+                        var accountHolder = {
+                            first: _this.first,
+                            last: _this.last
+                        };
+
+                        return forteACHFuncs.createCustomerProfile(config, _this.Lease.id, accountHolder)
+                            .then(function(tokenRes){
+
+                                if(tokenRes.status){
+                                    _this.Lease.achtoken = tokenRes.data.customer_token;
+                                    return models.Lease.save(connection, { achtoken: _this.Lease.achtoken}, _this.Lease.id).then(function(response){
+                                        return _this.Lease.achtoken;
+                                    })
+                                } else {
+                                    throw tokenRes.msg;
+                                }
+                            })
+                    }
+                    return _this.Lease.achtoken;
+                    break;
+            }
+            return false;
+
+        }).catch(function(err){
+            console.log(err);
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        });
+    }
+
+    validate(){
+        var _this = this;
+
+        try {
+            if (!_this.lease_id && !_this.user_id) {
+                throw 'Lease Id or User Id is required';
+            }
+
+            if (!_this.first ) {
+                throw 'Payee first name is missing';
+            }
+
+            if (!_this.last ) {
+                throw 'Payee last name is missing';
+            }
+
+            if(_this.type != 'card' &&  _this.type != 'check' && _this.type != 'ach'){
+                throw 'Payment Method type missing';
+            }
+            switch(_this.type){
+                case 'check':
+                    break;
+                case 'ach':
+                    console.log(_this.name_on_card)
+                    console.log(_this.card_end )
+                    console.log(_this.card_type )
+
+                    if(!_this.name_on_card || !_this.card_end || !_this.card_type )
+                        throw "ACH account has not been set";
+                    break;
+                case 'card':
+                    if(!_this.name_on_card || !_this.exp_warning || !_this.card_end || !_this.card_type )
+                        throw "Credit card has not been set";
+                    break;
+            }
+
+            return true;
+
+        } catch(err){
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        }
+
+        return true;
+    }
+
+    validateNonce(nonce){
+
+        var decipher = crypto.createDecipher(settings.security.algorithm, settings.security.key);
+        try{
+            var decrypted = JSON.parse(decipher.update(nonce, 'hex', 'utf8') + decipher.final('utf8'));
+
+            var expiry = moment(decrypted.expiry);
+            if(moment() > expiry.local()) return false;
+
+            if(decrypted.method != 'payment')  return false;
+            if(decrypted.payment_methods_id != this.id)  return false;
+        } catch(err){
+            return false;
+        }
+
+        return true;
+    }
+
+    setNonce(){
+
+        if(!this.id) throw "Id not found.";
+
+        var shipment = {
+            payment_methods_id: this.id,
+            method: 'payment',
+            expiry: moment().utc().add(3, 'hours')
+        };
+
+        var cipher = crypto.createCipher(settings.security.algorithm, settings.security.key);
+        var encrypted = cipher.update(JSON.stringify(shipment), 'utf8', 'hex') + cipher.final('hex');
+
+        this.nonce = encrypted;
+        return true;
+    }
+
+    find(connection){
+        var lease, property, address, user;
+        var _this = this;
+        return Promise.resolve().then(function() {
+            try {
+                if(!_this.id) {
+                    _this.msg = 'No Id is set';
+                    throw 'No Id is set';
+                }
+            } catch(err){
+                _this.msg = err.toString();
+                throw err;
+            }
+            return models.Payment.findPaymentMethodById(connection, _this.id);
+
+        }).then(function(data){
+
+
+
+            if(!data){
+                _this.msg = 'Payment Method not found';
+                return false;
+            }
+
+            _this.lease_id = data.lease_id;
+            _this.user_id = data.user_id;
+            _this.address_id = data.address_id;
+            _this.unit_number = data.unit_number;
+            _this.company = data.company;
+            _this.first = data.first;
+            _this.last = data.last;
+            _this.token = data.token;
+            _this.achtoken = data.achtoken;
+            _this.name_on_card = data.name_on_card;
+            _this.exp_warning = data.exp_warning;
+            _this.auto_charge = data.auto_charge;
+            _this.active = data.active;
+            _this.type = data.type;
+            _this.card_end = data.card_end;
+            _this.card_type = data.card_type;
+
+
+            _this.setNonce();
+
+
+
+            if(!_this.lease_id) return;
+
+            lease = new Lease({id: _this.lease_id});
+            return lease.find(connection).then(() => { return lease.getTenants(connection)}).then(() => {
+                _this.Lease = lease;
+                return true;
+            })
+
+        }).then(function(){
+
+            if(!_this.lease_id) return;
+
+            return models.Property.findByLeaseId(connection,  _this.lease_id).then(p => {
+                property = new Property({id:  p.id});
+                return property.find(connection).then(() => {
+                    _this.Property = property;
+                    return true;
+                })
+            })
+
+        }).then(function(){
+
+            if(!_this.user_id) return;
+            user = new User({id: _this.user_id });
+
+
+            return user.find(connection).then(() => {
+
+                _this.User = user;
+                _this.user_id = user.id;
+                return true;
+            });
+
+        }).then(function(){
+
+            if(!_this.address_id) return true;
+
+            address = new Address({id:_this.address_id });
+            return address.findOrSave(connection).then(() => {
+                _this.Address = address;
+                _this.address_id = address.id;
+                return true;
+            });
+            
+        }).catch(function(err){
+            _this.msg = err.toString();
+            console.log(err);
+            console.log(err.stack);
+            return false;
+        })
+
+    }
+
+    values(){
+        var _this = this;
+        var data = {
+            id: _this.id,
+            lease_id: _this.lease_id,
+            user_id: _this.user_id,
+            address_id: _this.address_id,
+            unit_number: _this.unit_number,
+            company: _this.company,
+            first: _this.first,
+            last: _this.last,
+            name_on_card: _this.name_on_card,
+            exp_warning: _this.exp_warning,
+            auto_charge: _this.auto_charge,
+            active: _this.active,
+            type: _this.type,
+            card_end: _this.card_end,
+            card_type: _this.card_type,
+            Address: {},
+            Lease: {},
+            User: {}
+
+        };
+
+        if(_this.Address && Object.keys(_this.Address).length){
+            data.Address = {
+                id: _this.Address.id,
+                address: _this.Address.address,
+                city:   _this.Address.city,
+                state:  _this.Address.state,
+                zip:    _this.Address.zip,
+                lat:    _this.Address.lat,
+                lng:    _this.Address.lng
+            }
+        }
+
+        if(_this.User && Object.keys(_this.User).length){
+            data.User = {
+                id:     _this.User.id,
+                email: _this.User.email,
+                first:   _this.User.first,
+                last:  _this.User.last
+            }
+        }
+
+        return data;
+    }
+
+    remove(connection, company_id){
+
+        var _this = this;
+        var configVals = {};
+        return Promise.resolve().then(function(){
+
+            return _this.getExternalConnectionValues(connection, company_id);
+
+        }).then(function(configValsRes){
+
+            configVals = configValsRes;
+
+            if(!configVals) throw "This account is not set up to process ACH";
+
+            // Save or retrieve the account token for the payment gateway
+            return _this.getCustomerProfileToken(connection, configVals);
+
+        }).then(function(customerTokenRes){
+
+            switch(_this.type){
+                case "check":
+                    return true;
+                    break;
+                case "card":
+                    return _this.removeCard(connection, configVals);
+                    break;
+                case "ach":
+                    return _this.removeACH(connection, configVals);
+                    break;
+            }
+
+
+
+        }).catch(function(err){
+            _this.msg = err.toString();
+            return false;
+        })
+
+    }
+
+    removeCard(connection, configVals){
+        var _this = this;
+
+        return Promise.resolve().then(function(){
+
+            return deleteCustomerPaymentProfile(configVals, _this.Lease.token, _this.token).then(function(){
+                return true;
+            }).catch(function(err){
+                throw err.msg;
+            })
+
+        }).then(function(){
+
+            return models.Payment.deletePaymentMethod(connection, _this.id).then(function(){
+
+            }).catch(function(err){
+                throw err.msg;
+            })
+        }).then(function(deleteRes){
+            console.log(deleteRes);
+            return true;
+        }).catch(function(err){
+
+            _this.msg = err.toString();
+            return false;
+        })
+    }
+
+    removeACH(connection, configVals){
+        var _this = this;
+
+        return Promise.resolve().then(function(){
+
+            return forteACHFuncs.deleteCustomerPaymentProfile(configVals, _this.Lease.achtoken, _this.token).then(function(){
+                return true;
+            }).catch(function(err){
+                throw err.error.response.response_desc;
+            })
+
+        }).then(function(){
+            return models.Payment.deletePaymentMethod(connection, _this.id);
+        }).then(function(deleteRes){
+            console.log(deleteRes);
+            return true;
+        }).catch(function(err){
+            
+            _this.msg = err.toString();
+            return false;
+        })
+    }
+
+}
+
+
+class CreditCard {
+
+    constructor(data){
+
+        this.name_on_card = data.name_on_card || null;
+        this.card_number = data.card_number || null;
+        this.exp_mo = data.exp_mo || null;
+        this.exp_yr = data.exp_yr || null;
+        this.cvv2 = data.cvv2 || null;
+        this.address = data.address || null;
+        this.address_cont = data.city || null;
+        this.city = data.city || null;
+        this.state = data.state || null;
+        this.zip = data.zip || null;
+
+        this.msg = '';
+
+    }
+
+    validate(data){
+
+        var _this = this;
+
+        try {
+            if (!_this.name_on_card) {
+                throw 'Name on card is missing';
+            }
+
+            if (!validator.isCreditCard(_this.card_number + '')) {
+                throw 'You have entered an invalid card number';
+            }
+
+            if(!validator.isIn(_this.exp_mo + '', ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'])) throw "You have entered an invalid expiration month";
+
+            if(!validator.isInt(_this.exp_yr + '', {
+                    min: moment().format('YY'),
+                    max:  moment().add(10, 'year').format('YY')
+                })) throw "You have entered an invalid expiration year";
+
+            if(!_this.cvv2){
+                throw 'CVV2 code is missing';
+            }
+
+
+            if(!_this.address || !_this.city || !_this.state || !_this.zip){
+                throw 'Address is not complete';
+            }
+
+            return true;
+
+        } catch(err){
+            console.log(err.stack);
+            _this.msg = err.toString();
+            throw(_this.msg);
+        }
+
+        return true;
+
+    }
+
+    save(configVals, data){
+
+        var _this = this;
+
+        return Promise.resolve().then(function(){
+            // Get Validate Credit Card
+            if(!_this.validate()) throw _this.msg;
+
+            console.log("Saving");
+
+            switch(configVals.name){
+                case 'authorizenet':
+                    return _this.saveAuthnetCreditCard(configVals, data);
+                    break;
+            }
+            throw "Merchant not found";
+
+        }).catch(function(err){
+
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        });
+    }
+
+    saveAuthnetCreditCard(configVals, data){
+        var _this = this;
+        return Promise.resolve().then(function() {
+            console.log(configVals);
+            console.log(data);
+            return createCustomerPaymentProfile(configVals, data).catch(function(err){
+                console.log(err);
+	            throw err;
+            });
+        }).then(function(responseToken){
+                console.log(responseToken);
+            _this.token  = responseToken;
+            return true;
+        }).catch(function(err){
+            _this.msg = err.msg;
+            return false;
+        })
+    }
+
+    getCardType(){
+        var _this = this;
+        // visa
+        var re = new RegExp("^4");
+
+        if (_this.card_number.match(re) != null)
+            return "Visa";
+
+        // Mastercard
+        re = new RegExp("^5[1-5]");
+        if (_this.card_number.match(re) != null)
+            return "Mastercard";
+
+        // AMEX
+        re = new RegExp("^3[47]");
+        if (_this.card_number.match(re) != null)
+            return "AMEX";
+
+        // Discover
+        re = new RegExp("^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)");
+        if (_this.card_number.match(re) != null)
+            return "Discover";
+
+        // Diners
+        re = new RegExp("^36");
+        if (_this.card_number.match(re) != null)
+            return "Diners";
+
+        // Diners - Carte Blanche
+        re = new RegExp("^30[0-5]");
+        if (_this.card_number.match(re) != null)
+            return "Diners - Carte Blanche";
+
+        // JCB
+        re = new RegExp("^35(2[89]|[3-8][0-9])");
+        if (_this.card_number.match(re) != null)
+            return "JCB";
+    }
+
+}
+
+class ACH {
+
+    constructor(data){
+
+
+
+        this.account_holder = data.account_holder || null;
+        this.account_number = data.account_number || null;
+        this.routing_number = data.routing_number || null;
+        this.account_type = data.account_type || null;
+        this.msg = '';
+
+    }
+    validate(){
+
+        var _this = this;
+        try {
+
+            if(!_this.account_number || !validator.isNumeric(_this.account_number + '')) throw 'The account number is required and can only contain numbers';
+
+            if(!_this.routing_number || !validator.isLength(_this.routing_number + '', {min:1, max:9}) ) throw "You have entered an invalid routing number";
+
+            if(!_this.account_holder || !validator.isLength(_this.account_holder + '', {min:2})) throw "Please enter the name of the account holder";
+
+            return true;
+
+        } catch(err){
+            _this.msg = err.toString();
+            return false;
+        }
+
+        return true;
+
+    }
+
+    save(configVals){
+
+        var _this = this;
+
+
+        return Promise.resolve().then(function(){
+            // Get Validate Credit Card
+            if(!_this.validate()) throw _this.msg;
+
+            switch(configVals.name){
+                case 'authorizenet':
+                    // return _this.saveAuthnetACH(connection, configVals, data);
+                    break;
+                case 'forte':
+                    return _this.saveForteACH(configVals, _this);
+                    break;
+            }
+
+
+        }).catch(function(err){
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        });
+    }
+
+
+    saveForteACH(configVals, data){
+        var _this = this;
+
+        return Promise.resolve().then(function() {
+            return forteACHFuncs.createCustomerPaymentProfile(configVals, data);
+        }).then(function(responseToken){
+            _this.token  = responseToken;
+            return true;
+        }).catch(function(err){
+            _this.msg = err.toString();
+            return false;
+        })
+
+
+    }
+
+}
+
+
+
+module.exports = PaymentMethod;
+
+var Address = require(__dirname + '/./address.js');
+var User = require(__dirname + '/./user.js');
+var Lease = require(__dirname + '/./lease.js');
+var Property = require(__dirname + '/./property.js');

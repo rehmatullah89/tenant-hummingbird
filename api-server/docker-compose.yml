@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+
+  docs:
+    build:
+      context: ./docker/swagger
+    volumes:
+      - ./docker/swagger/swagger.yml:/tmp/swagger.yml:cached
+    ports:
+      - 8080:8080
+    networks:
+      - default
+
+  # e2e:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   env_file:
+  #     - test.env
+  #   entrypoint: npm run test
+  #   volumes:
+  #     - /home/app/hummingbird/node_modules
+  #     - .:/home/app/hummingbird
+  #   depends_on:
+  #     - mysql
+  #     - redis
+  #   networks:
+  #     - test
+
+  mysql:
+    build:
+      context: ./docker/mysql
+    restart: always
+    env_file:
+      - test.env
+    command: mysqld --default-authentication-plugin=mysql_native_password --sql-mode=
+    volumes:
+      - ./docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/mysql/data:/var/lib/mysql
+    security_opt:
+      - seccomp:unconfined
+    networks:
+      - test
+
+  redis:
+    image: redis:latest
+    networks:
+      - test
+
+networks:
+
+  default:
+    external:
+      name: tenant_hb
+
+  test:

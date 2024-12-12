@@ -1,0 +1,678 @@
+<template>
+
+
+    <div class="listbox-area" :class="theme" :style="styleProps" :id="id" name="name">
+        <div class="left-area">
+            <div id="exp_wrapper">
+                <button aria-haspopup="listbox"
+                        ref="toggle"
+                        aria-labelledby="exp_elem exp_button"
+                        :aria-expanded="showList"
+                        class="exp_button"
+                        @click="toggleListbox"
+                        @keyup="checkShow"
+                        @keydown="checkKeyPress"
+                >
+                    <slot name="trigger" :data="chosen">
+                        {{chosen || showPlaceholder}}
+                    </slot>
+                </button>
+
+                <ul id="exp_elem_list"
+                    class="elem_list"
+                    v-show="showList"
+                    ref="list"
+                    tabindex="-1"
+                    :aria-activedescendant="focused + '_id'"
+                    role="listbox"
+                    @focus="setupFocus"
+                    @keydown="checkKeyPress"
+                    @blur="blur"
+                >
+
+                    <li
+                            :class="{focused: focused === o }"
+                            role="option"
+                            v-for="o in options"
+                            :objkey="o"
+                            :ref="'element_' + optionString(o) "
+                            @click="clickItem(o)"
+                            @keydown="checkHide"
+                            :id="optionString(o) + '_id'"
+                    >
+                        <slot name="option" :data="o"> {{ optionLabel(o) }} </slot>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</template>
+
+
+
+<script type="text/babel">
+    import { mixin as clickaway } from 'vue-clickaway';
+
+    export default{
+        data(){
+            return {
+                showList: false,
+                KeyCode: {
+                    BACKSPACE: 8,
+                    TAB: 9,
+                    RETURN: 13,
+                    ESC: 27,
+                    SPACE: 32,
+                    PAGE_UP: 33,
+                    PAGE_DOWN: 34,
+                    END: 35,
+                    HOME: 36,
+                    LEFT: 37,
+                    UP: 38,
+                    RIGHT: 39,
+                    DOWN: 40,
+                    DELETE: 46
+                },
+                moveUpDownEnabled: false,
+                focused: null
+            }
+        },
+        computed:{
+            showPlaceholder(){
+                return this.placeholder || "Select One";
+
+            },
+            chosen(){
+                if(!this.focused) return null;
+
+                if(this.label && this.focused[this.label]){
+                   return this.focused[this.label]
+                }
+                return this.focused;
+            },
+
+        },
+        filters:{},
+        created(){
+            if(this.value){
+                this.focused = this.value;
+            }
+        },
+        methods: {
+            slugify(text){
+                return text.toString().toLowerCase()
+                        .replace(/\s+/g, '-')           // Replace spaces with -
+                        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+                        .replace(/^-+/, '')             // Trim - from start of text
+                        .replace(/-+$/, '');            // Trim - from end of text
+            },
+            optionString(o){
+                if(this.objkey && o[this.objkey]){
+                    return this.slugify(o[this.objkey])
+                }
+                if(this.label && o[this.label]){
+                    return this.slugify(o[this.label])
+                }
+
+                return this.slugify(o.toString());
+            },
+            optionLabel(o){
+                if(this.label && o[this.label]){
+                    return o[this.label]
+                }
+                return o;
+            },
+
+            setupFocus(){
+
+                if (this.focused) {
+                    return;
+                }
+                this.focusFirstItem();
+            },
+
+            focusFirstItem(){
+
+                if (this.options.length) {
+                    this.focusItem(this.options[0]);
+                }
+            },
+            focusLastItem(){
+                if (this.options.length) {
+                    this.focusItem(this.options[this.options.length - 1]);
+                }
+            },
+            checkKeyPress(evt){
+
+
+                var key = evt.which || evt.keyCode;
+
+                //var nextItem = document.getElementById(this.activeDescendant);
+                var nextItem = this.options.indexOf(this.focused);
+                nextItem = nextItem || 0;
+
+                switch (key) {
+                    case this.KeyCode.PAGE_UP:
+                    case this.KeyCode.PAGE_DOWN:
+                        if (this.moveUpDownEnabled) {
+                            evt.preventDefault();
+
+                            if (key === this.KeyCode.PAGE_UP) {
+                                this.moveUpItems();
+                            }
+                            else {
+                                this.moveDownItems();
+                            }
+                        }
+
+                        break;
+                    case this.KeyCode.UP:
+                    case this.KeyCode.DOWN:
+                        evt.preventDefault();
+
+                        if (this.moveUpDownEnabled && evt.altKey) {
+                            if (key === this.KeyCode.UP) {
+                                this.moveUpItems();
+                            }
+                            else {
+                                this.moveDownItems();
+                            }
+                            return;
+                        }
+
+
+
+                        if (key === this.KeyCode.UP) {
+                            nextItem--;
+                        }
+                        else {
+                            nextItem++;
+                        }
+
+                        if (nextItem < 0) {
+                            nextItem = 0;
+                        }
+                        if (nextItem >= this.options.length) {
+                            nextItem = this.options.length - 1;
+                        }
+                        this.focusItem(this.options[nextItem]);
+
+                        break;
+                    case this.KeyCode.HOME:
+                        evt.preventDefault();
+                        this.focusFirstItem();
+                        break;
+                    case this.KeyCode.END:
+                        evt.preventDefault();
+                        this.focusLastItem();
+                        break;
+                    case this.KeyCode.RETURN:
+                    case this.KeyCode.SPACE:
+                        evt.preventDefault();
+
+                        this.focusItem(this.options[nextItem]);
+                        this.hideListbox();
+
+                        //this.toggleSelectItem(nextItem);
+                        break;
+                    case this.KeyCode.BACKSPACE:
+                    case this.KeyCode.DELETE:
+                        if (!this.moveButton) {
+                            return;
+                        }
+                        var keyshortcuts = this.moveButton.getAttribute('aria-keyshortcuts');
+                        if (key === this.KeyCode.RETURN && keyshortcuts.indexOf('Enter') === -1) {
+                            return;
+                        }
+                        if (
+                                (key === this.KeyCode.BACKSPACE || key === this.KeyCode.DELETE) &&
+                                keyshortcuts.indexOf('Delete') === -1
+                        ) {
+                            return;
+                        }
+
+                        evt.preventDefault();
+
+                        var nextUnselected = nextItem.nextElementSibling;
+                        while (nextUnselected) {
+                            if (nextUnselected.getAttribute('aria-selected') != 'true') {
+                                break;
+                            }
+                            nextUnselected = nextUnselected.nextElementSibling;
+                        }
+                        if (!nextUnselected) {
+                            nextUnselected = nextItem.previousElementSibling;
+                            while (nextUnselected) {
+                                if (nextUnselected.getAttribute('aria-selected') != 'true') {
+                                    break;
+                                }
+                                nextUnselected = nextUnselected.previousElementSibling;
+                            }
+                        }
+
+                        this.moveItems();
+
+                        if (!this.activeDescendant && nextUnselected) {
+                            this.focusItem(nextUnselected);
+                        }
+                        break;
+                    default:
+                //        var itemToFocus = this.findItemToFocus(key);
+                //        if (itemToFocus) {
+                //            this.focusItem(itemToFocus);
+                //        }
+                        break;
+
+                }
+            },
+
+
+            findItemToFocus(key){
+                var itemList = this.listboxNode.querySelectorAll('[role="option"]');
+                var character = String.fromCharCode(key);
+
+                if (!this.keysSoFar) {
+                    for (var i = 0; i < itemList.length; i++) {
+                        if (itemList[i].getAttribute('id') == this.activeDescendant) {
+                            this.searchIndex = i;
+                        }
+                    }
+                }
+                this.keysSoFar += character;
+                this.clearKeysSoFarAfterDelay();
+
+                var nextMatch = this.findMatchInRange(
+                        itemList,
+                        this.searchIndex + 1,
+                        itemList.length
+                );
+                if (!nextMatch) {
+                    nextMatch = this.findMatchInRange(
+                            itemList,
+                            0,
+                            this.searchIndex
+                    );
+                }
+                return nextMatch;
+            },
+
+            clearKeysSoFarAfterDelay(){
+                if (this.keyClear) {
+                    clearTimeout(this.keyClear);
+                    this.keyClear = null;
+                }
+                this.keyClear = setTimeout((function () {
+                    this.keysSoFar = '';
+                    this.keyClear = null;
+                }).bind(this), 500);
+            },
+            findMatchInRange(list, startIndex, endIndex){
+                // Find the first item starting with the keysSoFar substring, searching in
+                // the specified range of items
+                for (var n = startIndex; n < endIndex; n++) {
+                    var label = list[n].innerText;
+                    if (label && label.toUpperCase().indexOf(this.keysSoFar) === 0) {
+                        return list[n];
+                    }
+                }
+                return null;
+
+            },
+
+            clickItem(o){
+                this.focusItem(o);
+                this.hideListbox();
+            },
+
+            defocusItem(element){
+                if (!element) {
+                    return;
+                }
+
+                aria.Utils.removeClass(element, 'focused');
+
+            },
+            blur(){
+
+                this.hideListbox();
+                this.$emit('blur');
+            },
+            focusItem(option){
+
+                this.focused = option;
+                var element = this.$refs['element_' +  this.optionString(option)][0];
+
+                // MOVE WINDOW TO PROPER POSITION
+
+                if (this.$refs.list.scrollHeight > this.$refs.list.clientHeight) {
+                    var scrollBottom = this.$refs.list.clientHeight + this.$refs.list.scrollTop;
+
+                    var elementBottom = element.offsetTop + element.offsetHeight;
+                    if (elementBottom > scrollBottom) {
+                        this.$refs.list.scrollTop = elementBottom - this.$refs.list.clientHeight;
+                    }
+                    else if (element.offsetTop < this.$refs.list.scrollTop) {
+                        this.$refs.list.scrollTop = element.offsetTop;
+                    }
+                }
+
+                if (!this.multiselectable && this.moveButton) {
+                    this.moveButton.setAttribute('aria-disabled', false);
+                }
+
+
+                if(this.objkey && this.focused[this.objkey]){
+                    this.$emit('input', this.focused[this.objkey]);
+                } else if(this.label && this.focused[this.label]){
+                    this.$emit('input', this.focused[this.label]);
+                } else {
+                    this.$emit('input', this.focused);
+                }
+
+
+                // this.checkUpDownButtons();
+                //this.handleFocusChange(element);
+            },
+
+            checkShow(evt){
+                var key = evt.which || evt.keyCode;
+                switch (key) {
+                    case this.KeyCode.UP:
+                    case this.KeyCode.DOWN:
+                        evt.preventDefault();
+                        this.showListbox();
+                      //  this.checkKeyPress(evt);
+                        break;
+                }
+            },
+            checkHide(evt){
+                var key = evt.which || evt.keyCode;
+
+                switch (key) {
+                    case this.KeyCode.RETURN:
+                    case this.KeyCode.ESC:
+                        evt.preventDefault();
+                        this.hideListbox();
+                        //this.button.focus();
+                        break;
+                }
+            },
+            toggleListbox() {
+                if(this.showList) {
+                    this.hideListbox();
+                } else {
+                    this.showListbox();
+                }
+
+            },
+            showListbox() {
+                this.showList = true;
+                this.$nextTick(() => {
+                    this.$refs.list.focus();
+                })
+            },
+
+            hideListbox () {
+                this.showList = false;
+                this.$nextTick(() => {
+                    this.$refs.toggle.focus();
+
+                })
+            }
+        },
+        mixins: [ clickaway ],
+        mounted (){},
+        props: {
+            width: {
+                type: String,
+                required: false
+            },
+            options: {
+                type: Array,
+                required: false
+            },
+            value: {
+                required: false
+            },
+            default:{
+                type: String,
+                required: false
+            },
+            placeholder: {
+                type: String,
+                required: false,
+                default: ''
+            },
+            multi: {
+                type: Boolean,
+                required: false
+            },
+            hasEmpty: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            theme: {
+                type: String,
+                required: false,
+                default: 'light'
+            },
+            objkey:{
+                type: String,
+                required: false
+            },
+            label:{
+                type: String,
+                required: false
+            },
+            id:{
+                type: String,
+                required: false
+            },
+            name:{
+                type: String,
+                required: false
+            },
+            styleProps: {
+                type: Object,
+                required: false
+            }
+        },
+        watch:{
+            value(val){
+                this.focused = val;
+            }
+        }
+
+    }
+</script>
+<style scoped>
+
+    .listbox-area {
+        font-size: 0px;
+        position: relative;
+
+
+    }
+
+
+    .listbox-area button{
+        font-size: 14px;
+        width: auto;
+        padding-right: 30px;
+    }
+
+
+    .left-area, .right-area {
+        box-sizing: border-box;
+        /*display: inline-block;*/
+        font-size: 14px;
+        vertical-align: top;
+        width: 50%;
+    }
+
+    .left-area {
+        /*padding-right: 10px;*/
+    }
+
+    .right-area {
+        /*padding-left: 10px;*/
+    }
+
+
+    li{
+        display: block;
+        padding: 10px 12px;
+        position: relative;
+        line-height: 18px;
+    }
+
+    li:hover{
+        background-color: #f5f7f8;
+    }
+    li.focused,
+    li.focused:hover{
+        background: #e5f3fa;
+    }
+
+    button {
+        font-size: 16px;
+
+    }
+
+    button[aria-disabled="true"] {
+        opacity: 0.5;
+    }
+
+
+    .exp_button {
+        border-radius: 0;
+        font-size: 16px;
+        text-align: left;
+        padding: 5px 10px;
+        width:100%;
+        position: relative;
+    }
+
+    .exp_button::after {
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #ccc;
+        content: " ";
+        position: absolute;
+        right: 8px;
+        top: 13px;
+    }
+
+    .exp_button[aria-expanded="true"]::after {
+        width: 0;
+        height: 0;
+        border-top: 0;
+        border-left: 3px solid transparent;
+        border-right: 3px solid transparent;
+        border-bottom: 3px solid #ccc;
+        content: " ";
+        position: absolute;
+        right: 8px;
+        top: 13px;
+    }
+
+    .elem_list {
+        z-index:100;
+        padding: 0px;
+        background: white;
+        border: 1px solid #aaa;
+        width: 100%;
+        border-top: 0;
+        overflow-y: auto;
+        position: absolute;
+        margin: 0;
+
+
+    }
+
+
+    .offscreen {
+        clip: rect(1px 1px 1px 1px);
+        clip: rect(1px, 1px, 1px, 1px);
+        font-size: 14px;
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+
+
+    .listbox-area.dark button{
+        background-color: #00a1c8;
+        color: white;
+    }
+
+    .listbox-area.dark .exp_button[aria-expanded="true"]::after{
+        border-bottom: 3px solid #FFF;
+        border-top: 0;
+    }
+    .listbox-area.dark .exp_button::after {
+        border-top: 3px solid #FFF;
+        border-bottom: 0;
+    }
+    .listbox-area{
+        max-width: 100%;
+    }
+
+    .listbox-area .elem_list{
+        min-height: auto;
+        height: auto;
+        max-height: 300px;
+    }
+
+    .listbox-area .left-area {
+        width: 100%;
+    }
+
+    .listbox-area li{
+        padding: 8px 12px;
+        width: 100%;
+    }
+    .listbox-area.light button {
+        display: block;
+        width: 100%;
+        height: 38px;
+        padding: 8px 30px 8px 12px;
+        font-size: 14px;
+        line-height: 1.428571429;
+        color: #333333;
+        vertical-align: middle;
+        background-color: #ffffff;
+        border: 1px solid #cccccc;
+    }
+    .listbox-area.light button::after {
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #ccc;
+        content: " ";
+        position: absolute;
+        right: 12px;
+        top: 15px;
+    }
+    .listbox-area.light ul:focus,
+    .listbox-area.light button:focus {
+        border: 2px solid #00b2ce;
+        outline: 0;
+    }
+
+
+
+
+
+
+
+</style>

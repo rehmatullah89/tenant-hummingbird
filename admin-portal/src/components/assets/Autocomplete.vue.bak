@@ -1,0 +1,314 @@
+<template >
+
+
+    <div :class="{'open': openSuggestion }" v-on-clickaway="closeDropdown" class="input-group multi-select">
+
+        <input ref="search"
+               @keydown="setOpen"
+               @keydown.enter.prevent="enter"
+               @keydown.up="up"
+               @keydown.tab="tab"
+               @keydown.down="down"
+               @input="search"
+               :placeholder="placeholder"
+               v-model="selection"
+               class="form-control"
+               @blur="$emit('blur')"
+        />
+        <div id="cancel" class="input-group-btn" v-if="selection">
+            <button  tabindex="-1" @click.stop.prevent="clear" class="btn btn-blank"><i class="fa fa-remove"></i></button>
+        </div>
+        <div id="dropdown" class="input-group-btn" v-if="showempty">
+            <button  tabindex="-1" @click.stop.prevent="triggerClick" class="btn btn-trigger view-all"><i class="fa fa-caret-down"></i></button>
+        </div>
+        <ul class="dropdown-menu" :class="{'hide-border': !add && !matches.length }">
+            <li v-if="add" @click="$emit('addClick')" class="add-option"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add</li>
+            <li v-for="m, i in matches" :key="i" :class="{'active': isActive(i)}" @click="suggestionClick(i)">{{ m }}</li>
+        </ul>
+    </div>
+
+</template>
+
+<script type="text/babel">
+
+
+
+    export default{
+        name: "AutoComplete",
+        mixins: [ clickaway ],
+        props: {
+            tabindex:{
+                type: String
+            },
+            selection: {
+                required: false
+            },
+            data:{
+                required: false,
+                type: Object,
+            },
+            list: {
+                type: Array,
+                required: false,
+                default: []
+            },
+            placeholder: {
+                type: String,
+                required: false,
+                default: 'Choose One'
+            },
+            showempty: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            add: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            loose: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            focus: {
+                type: Boolean,
+                required: false,
+                default: false
+            }
+
+        },
+        data(){
+            return{
+                open: false,
+                current: 0,
+                suggestions: [],
+                //         selection: ''
+            }
+        },
+        filters:{
+            showLabel(value){
+                return (value != null && typeof value == 'object' && value.label)? value.label : value;
+            }
+        },
+        mounted (){
+            var _this = this;
+            if(this.focus) this.$refs.search.focus();
+        },
+        computed:{
+            matches (){
+                var _this = this;
+                this.current = 0;
+                var itemVal = '';
+                return this.list.filter(function(item) {
+                    itemVal = (typeof item == 'object' && item.label)? item.label : item;
+                    if(_this.selection){
+                        if(_this.loose) return true;
+                        return itemVal.toLowerCase().indexOf(_this.selection.toLowerCase()) >= 0;
+                    } else if(_this.showempty === true){
+                        return true;
+                    }
+                    return false;
+                }).map(function(match){
+                    return (typeof match == 'object' && match.label)? match.label : match;
+                });
+            },
+            //The flag
+            openSuggestion () {
+                return this.open === true;
+            }
+        },
+        methods: {
+            setOpen(evt){
+                if(!this.open && event.key != "Tab" && evt.key != "Enter"){
+                    this.open = true;
+                }
+            },
+            triggerClick(){
+                this.$refs.search.focus();
+                this.toggleOpen();
+            },
+            toggleOpen (){
+
+                if(this.open){
+                    if(this.matches.length && this.selection != this.matches[0]){
+                        //this.selection = '';
+                        this.setValue('');
+                    } else if(this.matches.length){
+                        this.setValue(this.matches[0]);
+                    }
+                } else {
+                    this.search(this.selection);
+                }
+
+                this.open = !this.open;
+            },
+            clear(){
+                this.$emit('change', '');
+            },
+            //When enter pressed on the input
+            enter() {
+
+                if(this.open){
+
+                    if(this.matches[this.current]){
+                        this.setValue(this.matches[this.current]);
+                    } else {
+                        this.setValue('');
+                    }
+
+                    this.open = false;
+                } else {
+
+                    this.$emit('enter');
+                }
+
+                console.log("isOpen", this.open);
+
+            },
+
+            //When up pressed while suggestions are open
+            up() {
+                if (this.current > 0)
+                    this.current--;
+            },
+            tab(evt){
+
+                if(this.open){
+                    this.$emit('cancel');
+                } else {
+
+                }
+                this.open = false;
+
+
+
+
+                /*
+                 if(evt.shiftKey){
+                 if(evt.target.previousElementSibling){
+                 evt.target.previousElementSibling.focus();
+                 }
+                 } else {
+                 evt.target.nextElementSibling.focus();
+                 }
+                 */
+            },
+            //When up pressed while suggestions are open
+            down() {
+                if (!this.open) {
+                    this.open = true;
+                    this.current = -1;
+                }
+                if (this.current < this.list.length - 1)
+                    this.current++;
+
+            },
+            //For highlighting element
+            isActive(index) {
+                return index === this.current;
+            },
+            //When the user changes input
+            change() {
+
+                if (this.open == false) {
+                    this.open = true;
+                    this.current = 0;
+                }
+            },
+            //When one of the suggestion is clicked
+            suggestionClick(i) {
+                this.setValue(this.matches[i]);
+                this.open = false;
+            },
+            setValue(value){
+                var itemVal;
+                value = value || '';
+                var selectedValue = this.list.filter(function(item){
+                    itemVal = (typeof item == 'object' && item.label)? item.label : item;
+                    return (itemVal.toLowerCase() == value.toLowerCase()) ? item: false;
+                });
+                this.$emit('change', selectedValue[0]);
+            },
+            closeDropdown: function() {
+                this.open = false;
+            },
+            search (){
+                console.log(this.selection)
+                _.debounce(this.$emit('input',this.selection), 300)
+            }
+        }
+    }
+</script>
+<style scoped>
+
+    .btn {
+        font-weight: 600;
+    }
+    .dropdown-item, .form-control, .btn, .dropdown-menu li {
+
+    }
+    .btn-trigger {
+        color: #000;
+        background-color: #fff;
+        border-color: #e2e2e2;
+    }
+
+    .btn-blank{
+        color: #777;
+        background-color: #fff;
+        border-top: 1px solid #e2e2e2;
+        border-bottom: 1px solid #e2e2e2;
+    }
+
+    .dropdown-menu li.active{
+        background-color: #f0f0f0;
+    }
+
+    .dropdown-menu li:last-child{
+        border-bottom:none;
+    }
+
+    .dropdown-menu{
+        max-height: 200px;
+        overflow-y:scroll;
+        width: 100%;
+    }
+
+    .dropdown-menu{
+        padding-top: 0;
+        padding-bottom: 0;
+
+    }
+
+    .dropdown-menu li:hover {
+        background-color: #f5f5f5;
+    }
+
+    .dropdown-menu li {
+        padding: 5px 10px;
+        border-bottom: 1px solid #e2e2e2;
+        cursor: pointer;
+    }
+
+    .btn-blank {
+        color: #777;
+        background-color: #fff;
+        border-top: 1px solid #e2e2e2;
+        border-bottom: 1px solid #e2e2e2;
+    }
+
+    .btn.active.focus,
+    .btn.active:focus,
+    .btn.focus,
+    .btn:active.focus,
+    .btn:active:focus,
+    .btn:focus {
+        outline:none !important;
+        box-shadow: none;
+    }
+    .dropdown-menu.hide-border{
+        border:none;
+    }
+</style>

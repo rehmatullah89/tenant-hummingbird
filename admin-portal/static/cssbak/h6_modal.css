@@ -1,0 +1,145 @@
+.modal-open .h6d-modal-container {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.h6d-modal-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+
+
+    -webkit-overflow-scrolling: touch;
+    outline: 0;
+
+
+}
+.h6d-overlay {
+    background: rgba(0,0,0,.86);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+
+}
+.h6d-modal {
+
+    margin: 50px auto;
+    z-index: 100;
+    max-width: 90%;
+
+
+    position: relative;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    outline: 0;
+    -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+    box-shadow: 0 3px 9px rgba(0,0,0,.5);
+
+}
+
+
+
+
+.h6d-close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    z-index: 1000;
+}
+
+.h6d-modal-header,
+.h6d-modal-body,
+.h6d-modal-footer
+{
+    position: relative;
+
+}
+.h6d-modal-header, .h6d-modal-footer{
+    padding: 15px 30px;
+}
+.h6d-modal-header{
+    min-height: 45px;
+}
+
+
+.h6d-modal-body{
+    padding: 30px;
+}
+
+
+
+.h6d-modal-header h3 {
+    margin: 0;
+    padding: 0;
+}
+
+
+
+/************************************
+    Default Theme Styles
+************************************/
+.h6d-modal.default{
+    border-radius: 2px;
+}
+.h6d-modal.default .h6d-modal-header{
+    background-color: #f0f0f0;
+    border-radius: 2px 2px 0 0;
+    color: #545454;
+}
+
+.h6d-modal.default button.h6d-close {
+    border: none;
+    background: none;
+    font-size: 24px;
+    color: #000;
+    text-shadow: 2px 2px 2px #fff;
+    line-height: 30px;
+    width: 36px;
+}
+
+.h6d-modal.default .h6d-modal-footer {
+    padding: 10px;
+    background: #f5f5f5;
+    border-top: #e2e2e2;
+    text-align: right;
+}
+
+.h6d-modal.default .h6d-modal-footer button{
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.h6d-modal.default .h6d-modal-footer .h6d-cancel {
+    border: none;
+    background: none;
+    color: #323232;
+    padding: 5px;
+    margin-left: 10px;
+
+}
+
+.h6d-modal.default .h6d-modal-footer .h6d-confirm{
+    text-transform: uppercase;
+    color: #fff;
+    border-radius: 2px;
+    padding: 8px 20px;
+    min-width: auto;
+    margin-bottom: 0;
+    line-height: 1.42857143;
+
+
+
+}
+
+

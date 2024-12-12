@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/static/stylesheets/normalize.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/stylesheets/jquery-ui.min.css">
+    <link rel="stylesheet" href="/static/stylesheets/bootstrap-select.min.css">
+    <link rel="stylesheet" href="/static/stylesheets/bootstrap-select.css.map">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800">
+    <link rel="stylesheet" href="/static/stylesheets/opentip.css">
+    <!--
+    <link rel="stylesheet" href="/static/stylesheets/bootstrap-datepicker3.min.css">
+    <link rel="stylesheet" href="/static/stylesheets/bootstrap-datepicker3.min.css.map">
+    -->
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.css" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+    <link rel="stylesheet" href="/static/stylesheets/h6_modal.css">
+    <link rel="stylesheet" href="/static/stylesheets/h6_flash.css">
+    <link rel="stylesheet" href="/static/stylesheets/nav_styles.css">
+    <link rel="stylesheet" href="/static/stylesheets/style.css">
+    <link rel="stylesheet" href="/static/stylesheets/frontend.css">
+</head>
+<body class="frontend">
+<div id="app" class="main">
+        <header-bar></header-bar>
+
+        <navigation v-if="$store.getters.isAdmin"></navigation>
+        <div class="content-container column " :class="[$store.getters.isAdmin ? '': 'column-full']">
+            <status></status>
+            <router-view></router-view>
+        </div>
+</div>
+<footer>
+    <script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyCqtY6WbTmXtAjBo-U593Iy0UhkI2nwaIg"></script>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+      integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous" type="text/javascript"></script>
+    <script src="/static/js/jquery.serialize-object.min.js" type="text/javascript"></script>
+
+
+<!--
+    <script src="https://cdn.jsdelivr.net/vee-validate/2.0.0-beta.25/vee-validate.min.js" type="text/javascript"></script>
+-->
+    <!-- File upload-->
+    <!--
+    <script src="/static/js/jquery.ui.widget.js" type="text/javascript"></script>
+
+
+    <script src="/static/js/jquery-ui.min.js" type="text/javascript"></script>
+
+    <script src="/static/js/jquery.fileupload.js" type="text/javascript"></script>
+    <script src="/static/js/jquery.fileupload-process.js" type="text/javascript"></script>
+    <script src="/static/js/jquery.fileupload-audio.js" type="text/javascript"></script>
+    <script src="/static/js/jquery.fileupload-image.js" type="text/javascript"></script>
+    <script src="/static/js/jquery.fileupload-validate.js" type="text/javascript"></script>
+    <script src="/static/js/jquery.fileupload-video.js" type="text/javascript"></script>
+    <script src="/static/js/jquery.iframe-transport.js" type="text/javascript"></script>
+
+    <script src="/static/js/opentip-jquery.min.js" type="text/javascript"></script>
+-->
+    <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/static/js/moment/moment.js" type="text/javascript"></script>
+    <script src="/static/js/transitions.js" type="text/javascript"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
+
+
+    <script src="/static/js/map.js" type="text/javascript"></script>
+    <script src="/static/js/jquery.twbsPagination.min.js" type="text/javascript"></script>
+<!--
+    <script src="/static/js/summernote.min.js"></script>
+    <script src="/static/js/summernote-cleaner.js"></script>
+-->
+    <script src="/static/js/h6_invoice.js" type="text/javascript"></script>
+    <!--script(src='/static/js/bootstrap-select.js.map', type='text/javascript')-->
+    <script src="/static/js/bootstrap-select.js" type="text/javascript"></script>
+    <!-- Sockets-->
+    <!--
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js" type="text/javascript"></script>
+    -->
+    <!-- Quickbooks-->
+    <script src="https://appcenter.intuit.com/Content/IA/intuit.ipp.anywhere.js" type="text/javascript"></script>
+
+
+
+</footer>
+<!-- built files will be auto injected -->
+</body>
+</html>

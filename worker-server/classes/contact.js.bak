@@ -1,0 +1,680 @@
+"use strict";
+
+var models  = require(__dirname + '/../models');
+var settings    = require(__dirname + '/../config/settings.js');
+
+var Promise = require('bluebird');
+var validator = require('validator');
+var moment      = require('moment');
+
+
+var roles = [];
+
+
+class Contact {
+
+	constructor(data){
+
+		data = data || {};
+		this.id =                         data.id;
+		this.user_id =                    data.user_id;
+		this.company_id =                 data.company_id;
+		this.salutation =                 data.salutation;
+		this.first =                      data.first;
+		this.middle =                     data.middle;
+		this.last =                       data.last;
+		this.suffix =                     data.suffix;
+		this.company =                    data.company;
+		this.email =                      data.email;
+		this.dob =                        data.dob;
+		this.ssn =                        data.ssn;
+		this.gender =                     data.gender;
+		this.source =                     data.source;
+		this.driver_license =             data.driver_license;
+		this.active_military =            data.active_military;
+		this.military_branch =            data.military_branch;
+
+
+		this.role =  '';
+
+		this.Roles = [];
+
+		if(data.User) this.User = data.User;
+		this.Access = [];
+		this.Leases = [];
+		this.Addresses = data.Addresses || [];
+		this.Phones = data.Phones || [];
+		this.Companies = [];
+		this.Applications = [];
+		this.Reservations = [];
+		this.Vehicles = data.Vehicles || [];
+		this.Employment = data.Employment || [];
+		this.Relationships = data.Relationships || [];
+		return this;
+
+	}
+
+	find(connection, company_id){
+		var _this = this;
+
+		if(!this.id && !this.user_id) {
+			throw new Error("Id not set");
+		};
+		
+		if(!company_id) throw new Error("Company id not set");
+		
+		return Promise.resolve().then(function(){
+			console.log(_this.id);
+			if(_this.id){
+				return models.Contact.findById(connection, _this.id);
+			} else {
+				return models.Contact.findByUserId(connection, _this.user_id);
+			}
+
+		}).then(function(contact) {
+
+
+			if (!contact) {
+				throw new Error("Contact not found");
+			}
+
+			_this.id = contact.id;
+			_this.company_id = contact.company_id;
+			_this.user_id = contact.user_id;
+			_this.salutation = contact.salutation;
+			_this.first = contact.first;
+			_this.middle = contact.middle;
+			_this.last = contact.last;
+			_this.company = contact.company;
+			_this.email = contact.email;
+			_this.suffix = contact.suffix;
+			_this.dob = contact.dob;
+			_this.source = contact.source;
+			_this.ssn = contact.ssn;
+			_this.gender = contact.gender;
+			_this.driver_license = contact.driver_license;
+			_this.active_military = contact.active_military;
+			_this.military_branch = contact.military_branch;
+		})
+		.then(() => _this.getLeases(connection, company_id))
+		.then(() => _this.getRoles(connection, company_id))
+		.then(() => _this.setRole(connection))
+		.then(() => models.Contact.findLocations(connection, _this.id))
+		.mapSeries(addressObj => {
+			return models.Address.findById(connection, addressObj.address_id).then(address =>{
+				addressObj.Address = address;
+				return addressObj;
+			})
+		})
+		.then(addresses => {
+
+			_this.Addresses = addresses || [];
+			
+			return true;
+		}).then(() => models.Contact.findPhones(connection, _this.id).map(p => {
+				p.sms = !!p.sms;
+				return p;
+			}) )
+
+		.then(phones => {
+			_this.Phones = phones || [];
+			return true;
+		})
+	}
+
+	getLeases(connection, reference_company_id){
+		var _this = this;
+
+		if(!this.id) throw new Error("Contact id not set");
+		if(!this.company_id){
+			_this.Leases = [];
+			return true;
+		}
+
+		var lease = {};
+		return models.Lease.findByContactId(connection, this.id, reference_company_id).mapSeries(l => {
+			lease = new Lease({id: l.id});
+			return lease.find(connection)
+				//.then(() => lease.getCurrentBalance(connection))
+				.then(() => lease.findUnit(connection))
+				.then(() => {
+				_this.Leases.push(lease);
+				return true;
+			})
+		});
+
+	}
+
+	getReservations(connection, reference_company_id){
+		var _this = this;
+
+		if(!this.id) throw new Error("Contact id not set");
+		if(!this.company_id){
+			_this.Reservations = [];
+			return true;
+		}
+		var reservation = {};
+
+		return models.Reservation.findByContactId(connection, this.id, reference_company_id).mapSeries(reservation => {
+			reservation = new Reservation({id: reservation.id});
+			return reservation.find(connection).then(() => {
+				_this.Reservations.push(reservation);
+				return true;
+			})
+		});
+
+	}
+
+	getApplications(connection){
+
+		return this.verifyId()
+			.then(() => models.Application.findByContactId(connection, this.id))
+			.mapSeries(a => {
+				var application = new Application({id: a.id});
+				return application.find(connection, this.company_id).then(() => {
+					this.Applications.push(application);
+					return true;
+				})
+			})
+	}
+
+	getVehicles(connection){
+		return this.verifyId()
+			.then(() => models.Contact.findVehicles(connection, this.id))
+			.then(vehicles => {
+				this.Vehicles = vehicles;
+				return true;
+			})
+	}
+
+	getEmployment(connection){
+		return this.verifyId()
+			.then(() => models.Contact.findEmployment(connection, this.id))
+			.then(employment => {
+				this.Employment = employment.map(e => {
+					e.status = e.status.split(',');
+					return e;
+				});
+				return true;
+			})
+
+	}
+	
+	getCompanies(connection){
+
+		return  models.Contact.findCompanyList(connection, this.id).then( companies => {
+			this.Companies = companies;
+		});
+
+	}
+
+	getRoles(connection, reference_company_id){
+		return models.Contact.getUserRoles(connection, this.id, reference_company_id).then(roles => {
+			this.Roles = roles;
+			return true;
+		})
+	}
+
+	saveAllRoles(connection, company_id){
+
+		console.log('saveAllRoles', company_id);
+		return models.Contact.removeAllRoles(connection, this.id, company_id)
+			.then(() => models.Contact.getAllRoles(connection))
+			.map(role => models.Contact.saveContactRole(connection, this.id, company_id, role.id));
+	}
+
+	setRole(){
+		var _this = this;
+		return Promise.resolve().then(() => {
+		// must getRoles and getLeases first!
+			if(_this.Roles.length) _this.role = 'admin';
+			if(_this.Leases.length) _this.role = 'tenant';
+
+			return true;
+		})
+
+	}
+
+	addPhone(phone){
+
+		if(!phone.phone) return true;
+		this.Phones.push({
+			id: phone.id || null,
+			type: phone.type,
+			phone: phone.phone.toString().replace(/\D/g,''),
+			sms: phone.sms || 0
+		});
+	}
+
+	addLocation(address){
+		if(!address.address) return true;
+		this.Addresses.push(address);
+	}
+
+	saveAsAlternate(connection){
+		return this.validate().then(() => {
+			var save = {
+				first: this.first,
+				last: this.last,
+				email: this.email
+			}
+			return models.Contact.save(connection, save, this.id);
+		}).then(contactRes => {
+			if(!this.id) this.id = contactRes.insertId;
+			this.Phones = this.Phones || [];
+			var phone_ids = this.Phones.filter(p => p.id).map(p => p.id).join(',');
+			return models.Contact.removePhones(connection, this.id, phone_ids.replace(/,\s*$/, "")).then(() => {
+				return this.Phones.map(p => {
+					if(!p.phone) return;
+					var phoneSave = {
+						contact_id: this.id,
+						type: p.type || 'primary',
+						phone: p.phone.toString().replace(/\D+/g, ''),
+						sms: p.sms || 0
+					}
+					return models.Contact.savePhone(connection, phoneSave, p.id)
+				})
+			})
+		})
+	}
+
+
+	save(connection){
+		var _this = this;
+		if(!connection) throw new Error("Connection not set");
+		
+		return this.validate().then(function(){
+			var save = {
+				user_id:                    _this.user_id,
+				company_id:                 _this.company_id,
+				salutation:                 _this.salutation,
+				first:                      _this.first,
+				middle:                     _this.middle,
+				last:                       _this.last,
+				company:                    _this.company,
+				suffix:                     _this.suffix,
+				email:                      _this.email,
+				dob:                        _this.dob || null,
+				ssn:                        _this.ssn ? _this.ssn.replace(/\D+/g, '') : null,
+				source:                     _this.source,
+				gender:                     _this.gender || null,
+				driver_license:             _this.driver_license,
+				active_military:            _this.active_military || 0,
+				military_branch:            _this.military_branch
+			};
+
+			return models.Contact.save(connection, save, _this.id);
+
+		}).then(function(contactRes){
+
+			if(!_this.id) _this.id = contactRes.insertId;
+
+			_this.Phones = _this.Phones || [];
+			var phone_ids = _this.Phones.filter(p => p.id).map(p => p.id).join(',');
+			 return models.Contact.removePhones(connection, _this.id, phone_ids.replace(/,\s*$/, "")).then(() => {
+				return _this.Phones.map(p => {
+					if(!p.phone) return;
+					var phoneSave= {
+						contact_id: _this.id,
+						type: p.type || 'primary',
+						phone: p.phone.toString().replace(/\D+/g, ''),
+						sms: p.sms || 0
+					}
+
+					return models.Contact.savePhone(connection, phoneSave, p.id)
+				})
+			})
+
+		}).then(function(){
+			// TODO FIND AND SAVE ADDRESS
+
+			_this.Addresses = _this.Addresses || [];
+			var address_ids = _this.Addresses.filter(a => a && a.id).map(a => a.id).join(',');
+			return models.Contact.removeLocations(connection, _this.id, address_ids.replace(/,\s*$/, "")).then(() => {
+				return Promise.mapSeries(_this.Addresses, a => {
+
+					if(!a || !a.Address || !a.Address.address) return true;
+					var address = {
+						address: a.Address.address,
+						city: a.Address.city,
+						state: a.Address.state,
+						zip: a.Address.zip
+					}
+					return models.Address.findOrSave(connection, address).then(address_id => {
+							var addressSave = {
+								contact_id: _this.id,
+								type: a.type || 'primary',
+								number: a.number,
+								move_in: a.move_in,
+								move_out: a.move_out,
+								rent: a.rent,
+								reason: a.reason,
+								landlord: a.landlord,
+								phone: a.phone ? a.phone.replace(/\D+/g, ''):null,
+								address_id: address_id
+							}
+							return models.Contact.saveLocation(connection, addressSave, a.id)
+						})
+				});
+			});
+
+			}).then(function(){
+
+				var employment_ids = _this.Employment.filter(e => e.id).map(e => e.id).join(',');
+				return models.Contact.removeEmployment(connection, _this.id, employment_ids.replace(/,\s*$/, "")).then(() => {
+					return Promise.mapSeries(_this.Employment, (e, i)=>{
+						e.sort = i;
+						
+						e.contact_id = _this.id;
+						return models.Contact.saveEmployment(connection, e, e.id);
+					});
+				})
+
+
+			}).then(function(){
+
+			var vehicle_ids = _this.Vehicles.filter(v => v.id).map(v => v.id).join(',');
+			return models.Contact.removeVehicles(connection, _this.id, vehicle_ids.replace(/,\s*$/, "")).then(() => {
+
+				if(!_this.Vehicles.length) return;
+				return Promise.mapSeries(_this.Vehicles, (e, i)=>{
+					e.sort = i;
+					e.contact_id = _this.id;
+
+					return Promise.resolve().then(() => {
+						if(!e || !e.RegisteredAddress || !e.RegisteredAddress.address) return true;
+
+						var address = {
+							address: e.RegisteredAddress.address,
+							city: e.RegisteredAddress.city,
+							state: e.RegisteredAddress.state,
+							zip: e.RegisteredAddress.zip
+						}
+						return models.Address.findOrSave(connection, address)
+
+					}).then(address_id => {
+						e.registered_address_id = address_id;
+						var data = Object.assign({}, e);
+						delete data.RegisteredAddress;
+						return models.Contact.saveVehicles(connection, data, data.id);
+
+					})
+				});
+			});
+
+
+			}).then(function(){
+
+
+				_this.Relationships = _this.Relationships || [];
+
+				if(!_this.Relationships.length) return;
+
+				_this.Relationships.map(a =>{
+					if(!a.Contact || !a.Contact.first || !a.Contact.last) return;
+					var alternate = new Contact(a.Contact);
+					alternate.company_id = _this.company_id;
+					return alternate.saveAsAlternate(connection).then(() =>{
+
+						return _this.saveRelationship(connection, {
+							related_contact_id: alternate.id,
+							type:  a.type,
+							is_cosigner: a.is_cosigner || 0,
+							is_emergency: a.is_emergency || 0,
+							is_military: a.is_military || 0, 
+							is_authorized: a.is_authorized || 0,
+							is_lien_holder: a.is_lien_holder || 0,
+							lease_id: a.lease_id || null,
+						},  a.id)
+
+					});
+			})
+		})
+	}
+
+	saveRelationship(connection, params, relationship_id ){
+
+		params.contact_id = this.id;
+		
+		return models.Contact.saveRelationship(connection, params, relationship_id)
+
+	}
+
+	getContactRelationships(connection){
+		return models.Contact.findAlternate(connection,this.id);
+	}
+	
+	getRelationships(connection){
+		return this.verifyId()
+			.then(() => models.Contact.findAlternate(connection, this.id))
+			.map(r => {
+				r.Contact = new Contact({id: r.related_contact_id});
+				return r.Contact.find(connection, this.company_id).then(() => r);
+			}).then(alternate => {
+				this.Relationships = alternate;
+				return true;
+			})
+
+	}
+
+	validate(){
+		var _this = this;
+		var error = {};
+		return Promise.resolve().then(function(){
+
+
+			if(validator.isEmpty(_this.first)){
+				error = new Error('Please enter a first name');
+				error.code = 422;
+				throw error;
+			}
+
+			if(validator.isEmpty(_this.last)){
+				error = new Error('Please enter a last name');
+				error.code = 422;
+				throw error;
+			}
+
+			if(_this.email && !validator.isEmail(_this.email)){
+				error = new Error('Please enter a valid email address');
+				error.code = 422;
+				throw error;
+			}
+
+			if(_this.ssn){
+				var stripped1 = validator.whitelist(_this.ssn.toString(), "01233456789");
+				if(_this.ssn && !validator.isLength(stripped1, { min:9, max:9 } )) {
+					error = new Error('You have entered an invalid SSN');
+					error.code = 422;
+					throw error;
+				};
+			}
+
+			if(_this.Phones && _this.Phones.length){
+				_this.Phones.map(p => {
+					var stripped2 = validator.whitelist(p.phone.toString(), "01233456789+x");
+					if(p.phone && !validator.isLength(stripped2, {min: 9, max: 11}))  {
+						error = new Error("The phone number you entered is not valid");
+						error.code = 422;
+						throw error;
+					};
+				});
+			}
+			return true;
+		})
+	}
+
+	update(data){
+		
+		if(typeof data.salutation !== 'undefined') this.salutation = data.salutation || '';
+		if(typeof data.first !== 'undefined') this.first = data.first || '';
+		if(typeof data.middle !== 'undefined') this.middle = data.middle || '';
+		if(typeof data.last !== 'undefined') this.last = data.last || '';
+		if(typeof data.suffix !== 'undefined') this.suffix = data.suffix || '';
+		if(typeof data.email !== 'undefined') this.email = data.email || '';
+		if(typeof data.company !== 'undefined') this.company = data.company || '';
+		if(typeof data.dob !== 'undefined') this.dob = data.dob || '';
+		if(typeof data.ssn !== 'undefined') this.ssn = data.ssn || '';
+		if(typeof data.gender !== 'undefined') this.gender = data.gender || '';
+		if(typeof data.source !== 'undefined') this.source = data.source || '';
+		if(typeof data.driver_license !== 'undefined') this.driver_license = data.driver_license || '';
+		if(typeof data.active_military !== 'undefined') this.active_military = data.active_military || '';
+		if(typeof data.military_branch !== 'undefined') this.military_branch = data.military_branch || '';
+		if(typeof data.salutation !== 'undefined') this.salutation = data.salutation || '';
+		if(typeof data.salutation !== 'undefined') this.salutation = data.salutation || '';
+		if(typeof data.Phones !== 'undefined') this.Phones = data.Phones || '';
+		if(typeof data.Addresses !== 'undefined') this.Addresses = data.Addresses || '';
+		if(typeof data.Relationships !== 'undefined') this.Relationships = data.Relationships || '';
+
+
+		return Promise.resolve();
+	}
+
+	response(){
+
+		var _this = this;
+		var s = {
+			id :                      _this.id,
+			user_id :                 _this.user_id,
+			company_id :              _this.company_id,
+			salutation :              _this.salutation,
+			first :                   _this.first,
+			middle :                  _this.middle,
+			last :                    _this.last,
+			suffix :                  _this.suffix,
+			company :                 _this.company,
+			email :                   _this.email,
+			source :                  _this.source,
+			dob :                     _this.dob,
+			ssn :                     _this.ssn? _this.ssn.toString(): null,
+			gender :                  _this.gender,
+			driver_license :          _this.driver_license,
+			active_military :         _this.active_military,
+			military_branch :         _this.military_branch
+		};
+		s.Phones = _this.Phones;
+		s.Addresses = _this.Addresses;
+		s.Leases = _this.Leases;
+		s.Relationships = _this.Relationships;
+
+		return s;
+
+	}
+
+	findDuplicateTenant(connection, email, company_id){
+
+		var cid = this.company_id || company_id || null;
+		if(!cid) throw "Company id not set";
+
+		return models.Contact.findTenantByEmail(connection, email, cid, this.id).then(c => {
+			if(c.length){
+				var error = new Error("A tenant with this email address already exists. If you want to add this contact to a new lease, please submit the contact ID along with the request");
+				error.code = 409;
+				throw error;
+			}
+		})
+	}
+
+	verifyId(){
+		return Promise.resolve().then(() => {
+			if(!this.id) e.th(500, "Contact id not set");
+			return true;
+		})
+	}
+
+	verifyUniqueTenantOnLease(connection, lease_id){
+
+
+
+		if(!this.id) {
+			var error = new Error('Contact ID not set');
+			error.code = 500;
+			throw error;
+		};
+
+		return models.Contact.verifyUniqueTenantOnLease(connection, this.id, lease_id).then(t => {
+			if(t.length) {
+				var error = new Error('This tenant already exists');
+				error.code = 409;
+				throw error;
+			}
+		})
+
+	}
+
+	verifyAccess(company_id){
+
+		if(this.company_id != company_id){
+			var error = new Error('Not authorized');
+			error.code = 403;
+			throw error;
+		}
+
+	}
+
+	sendWelcomeEmail(connection, company_id, type){
+		var _this = this;
+
+
+		if(!this.id) throw "Contact not found";
+
+		if(this.user_id){
+
+			return new Promise((resolve, reject) => {
+				Scheduler.addJobs([{
+					category: 'welcomeEmail',
+					data: {
+						id: _this.id,
+						action: 'email',
+						label: type,
+						company_id: company_id
+					}
+				}], function(err) {
+					if (err) return reject(err);
+					return resolve();
+				});
+			})
+
+		} else {
+			
+			return models.User.findByEmail(connection, this.email, this.company_id, this.id )
+				.then(duplicates => {
+					if(duplicates) throw "The email address on this account is already in use. In order for this user to log in you will need to provide an email address that is not associated with another account. ";
+
+					return new Promise((resolve, reject) => {
+						Scheduler.addJobs([{
+							category: 'welcomeEmail',
+							data: {
+								id: _this.id,
+								action: 'email',
+								label: 'setup',
+								company_id: company_id
+							}
+						}], function(err) {
+							if (err) return reject(err);
+							return resolve();
+						});
+					})
+
+					
+				})
+		}
+
+	}
+	
+	findAccessCredentials(connection, property_id, access_id, credentials_id){
+		return models.Contact.findAccessCredentials(connection, this.id, property_id, access_id).then(creds => {
+			this.Access = creds;
+
+			return true;
+		})
+		
+	}
+
+}
+
+module.exports = Contact;
+var Lease      = require('../classes/lease.js');
+var Application      = require('../classes/application.js');
+var Reservation      = require('../classes/reservation.js');
+var Scheduler = require(__dirname + '/../modules/scheduler.js');

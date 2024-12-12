@@ -1,0 +1,1004 @@
+
+// Auth Routes
+const LOGIN_URL = 'login';
+const RESET_PASSWORD_URL = 'reset-password/';
+
+
+// Billing Routes
+const ENTER_MONTLHY_BILLS_URL = 'billing/enter-monthly-bills';
+const AGING_DETAIL_URL = 'billing/get-aging-detail';
+
+
+const CURRENT_SERVICES_URL = 'services/';
+
+//Product Routes
+const SEARCH_PRODUCTS_URL = 'products/get-product-list?type=product&all=true';
+
+//Dashboard Routes
+const ACTION_ITEMS_URL = 'dashboard/action-items';
+const AGING_URL = 'dashboard/get-aging';
+const MAINTENANCE_SUMMARY_URL = 'dashboard/get-maintenance-requests';
+const MONTHLY_REVENUE_SUMMARY_URL = 'dashboard/get-revenue-by-month';
+const UNREAD_MESSAGES_URL = 'dashboard/get-unread-messages';
+const VACANCIES_URL = 'dashboard/get-vacancy-breakdown';
+
+//Properties Routes
+const PROPERTY_SEARCH_URL = 'properties/search';
+const PROPERTY_UNITS_URL = 'properties/view/units';
+const PROPERTY_URL = 'properties/';
+
+
+
+/* Unit Routes */
+
+const UNIT_OPTIONS_URL = 'units/get-unit-options';
+const LEASE_HISTORY_URL = 'units/get-lease-history/';
+const UNIT_DETAILS_URL = 'units/get-details/';
+
+/* Leases Routes */
+const LEASES_URL = 'leases/';
+const FIRST_INVOICE_URL = 'leases/get-first-invoice/';
+const SAVE_LEASE_URL = 'leases/';
+const PAYMENT_METHOD_OPTIONS = 'leases/get-payment-method-options/';
+
+/* Invoice Routes */
+
+const SAVE_INVOICE_URL = 'invoices/save';
+
+/* Tenant Routes */
+const TENANT_URL = 'tenants/';
+const SAVE_TENANT_URL = 'tenants/save-tenant';
+const ADD_TENANT_TO_LEASE_URL = 'leases/add-tenant';
+const SAVE_TENANT_ORDER = 'tenants/save-order';
+
+
+
+/* Settings Routes */
+
+const CATEGORIES_URL = 'settings/get-categories';
+const PRODUCTS_URL = 'products/';
+
+
+/* Payment Routes */
+
+const SAVE_PAYMENT_URL = 'payments/create';
+const SAVE_CREDIT_CARD_URL = 'payments/save-cc';
+const SAVE_ACH_URL = 'payments/save-ach';
+
+
+/* Signing Routes */
+
+
+const GET_DOCUMENT = 'documents/sign-document';
+const SAVE_SIGNATURE = 'documents/save-signature';
+const GENERATE_PDF = 'documents/generate-pdf';
+
+/* Document Routes */
+const DOCUMENT = 'documents/';
+const GENERATE_DOCUMENT = 'documents/generate-document';
+const GET_MERGE_FIELDS = 'documents/get-merge-fields';
+
+const FIELDS = 'documents/fields';
+const SET_UP_SIGNERS = 'documents/set-up-signers';
+const SEND_SIGN_LINK = 'documents/send-sign-link';
+const GET_SIGN_LINK = 'documents/get-sign-link';
+const RECORD_SIGN_ACTION = 'documents/record-sign-action';
+
+
+
+/* Uploads Routes */
+const UPLOADS = 'uploads/';
+const GET_LEASE = 'uploads/get-lease';
+
+
+
+function setError(context, name, msg){
+	context.errorSet(name, msg);
+}
+
+function setSuccess(context, name, msg){
+	context.successSet(name, msg);
+}
+function serialize(obj){
+	return Object.keys(obj).map(function(k){
+		return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])
+	}).join('&');
+
+}
+
+
+
+export default {
+
+	getCurrentServices(context, lease_id){
+		return context.$http.get(CURRENT_SERVICES_URL + "?lease_id=" + lease_id).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+
+		}).catch((err) => {
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	saveService(context, data){
+		return context.$http.post(CURRENT_SERVICES_URL, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw new Error(response.body.msg);
+				//setError(context, context.$options.name, response.body.msg);
+			}
+
+		}).catch((err) => {
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+			throw err;
+		})
+	},
+
+	deleteService(context, id){
+		return context.$http.delete(CURRENT_SERVICES_URL + '/' + id).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw new Error(response.body.msg);
+				//setError(context, context.$options.name, response.body.msg);
+			}
+
+		}).catch((err) => {
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+			throw err;
+		})
+	},
+
+
+	searchProducts(context, search){
+		return context.$http.get(SEARCH_PRODUCTS_URL + "&search="+ search).then(response => {
+			context.stopLoading(context.$options.name);
+
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+
+		}).catch((err) => {
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+
+
+	// Auth Routes
+
+
+
+	resetPassword(context, data){
+		context.$http.post(RESET_PASSWORD_URL, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				setSuccess(context, context.$options.name, response.body.msg);
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	validateHash(context, hash){
+		context.$http.get(RESET_PASSWORD_URL + hash).then(response => {
+				console.log(response.body);
+			if(!response.body.status){
+				context.disabled = true;
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.disabled = true;
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	confirmNewPassword(context, hash, data){
+		context.$http.post(RESET_PASSWORD_URL + hash, data).then(response => {
+			console.log(response.body);
+			if(response.body.status){
+				context.confirmed = true;
+				setSuccess(context, context.$options.name, response.body.msg);
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.disabled = true;
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	// Billing routes
+	getMonthlyBills(context){
+		return context.$http.get(ENTER_MONTLHY_BILLS_URL).then(function(response){
+			console.log(response.body)
+			if(response.body.status){
+				context.properties = response.body.data.properties;
+				context.splitTypes = response.body.data.splitTypes;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	saveMonthlyBills(context, data){
+
+		return context.$http.post(ENTER_MONTLHY_BILLS_URL, data).then(function(response){
+
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				context.showEnter = false;
+				context.fetchData();
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+
+
+	},
+
+
+	//DASHBOARD ROUTES
+	getActionItems(context){
+		context.$http.get(ACTION_ITEMS_URL).then(function(response){
+			if(response.body.status){
+				context.invoices_mailed = response.body.data.invoices_mailed;
+				context.unpaid_invoices = response.body.data.unpaid_invoices;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+
+		})
+	},
+	getAging(context){
+		context.$http.get(AGING_URL).then(function(response){
+			if(response.body.status){
+				context.thirty = response.body.data.thirty;
+				context.ninety = response.body.data.ninety;
+				context.overNinety = response.body.data.overNinety;
+			} else {
+				context.errorSet(context.$options.name, response.body.msg );
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+
+		})
+	},
+
+	getAgingDetail(context, data){
+		context.$http.get(AGING_DETAIL_URL + data).then(function(response){
+			if(response.body.status){
+				context.invoices = response.body.data.invoices;
+			} else {
+				context.errorSet(context.$options.name, response.body.msg );
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+
+		})
+	},
+	getMaintenaceSummary(context){
+		return context.$http.get(MAINTENANCE_SUMMARY_URL).then(function(response){
+			if(response.body.status){
+				var maintenance = response.body.data.maintenance;
+				maintenance.forEach(function(m){
+					context.requests[m.severity] = m.count;
+				});
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+
+		})
+	},
+	getMonthlyRevenueSummary(context){
+		return context.$http.get(MONTHLY_REVENUE_SUMMARY_URL).then(function(response){
+			if(response.body.status){
+				context.revenue = response.body.data.revenue;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+	getUnreadMessages(context){
+		return context.$http.get(UNREAD_MESSAGES_URL).then(function(response){
+			if(response.body.status){
+				context.messages = response.body.data.messages;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+	getVacancies(context){
+		return context.$http.get(VACANCIES_URL).then(function(response){
+			if(response.body.status){
+				context.vacancies = response.body.data.vacancies;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+
+	// Property Routes
+	propertiesSearch(context, data){
+		return context.$http.post(PROPERTY_SEARCH_URL, data).then(function(response){
+			context.stopLoading(context.$options.name);
+			context.finished = true;
+			if(response.body.status){
+				if(!response.body.data.properties.length) context.finished = true;
+				context.properties = context.properties.concat(response.body.data.properties);
+				context.pagination = response.body.data.pagination;
+				context.searchParams.offset += context.pagination.num_results;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	getPropertyUnits(context, property_id){
+		return context.$http.get(PROPERTY_UNITS_URL + '?property_id=' + property_id).then(function(response){
+			context.stopLoading(context.$options.name);
+			context.finished = true;
+			if(response.body.status){
+				context.units = response.body.data.units;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+	getProperty(context, property_id){
+		return context.$http.get(PROPERTY_URL  + property_id).then(function(response){
+			context.stopLoading(context.$options.name);
+
+
+			if(response.body.status){
+				context.property = response.body.data.property;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	getPaymentMethodOptions(context, lease_id){
+		console.log(lease_id);
+		return context.$http.get(PAYMENT_METHOD_OPTIONS  + lease_id).then(function(response){
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data
+			} else {
+				throw response.body.msg;
+			}
+		}).catch((err) => {
+			console.log(err);
+			context.finished = true;
+			setError(context, context.$options.name, err.toString());
+			throw err.toString()
+		})
+
+	},
+
+
+	/* Units */
+	getUnitOptions(context){
+		return context.$http.get(UNIT_OPTIONS_URL).then(function(response){
+		//	context.stopLoading(context.$options.name);
+			if(response.body.status){
+				context.unit_options = response.body.data.unit_options;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+	getLeaseHistory(context, unit_id){
+		return context.$http.get(LEASE_HISTORY_URL + unit_id).then(function(response){
+		//	context.stopLoading(context.$options.name);
+			console.log(response.body);
+			if(response.body.status){
+
+				context.leases = response.body.data.leases;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+	getUnit(context, unit_id){
+		return context.$http.get(UNIT_DETAILS_URL + unit_id).then(function(response){
+			if(response.body.status){
+				context.unit = response.body.data.unit;
+				context.property = response.body.data.property;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+
+
+
+	/* leases */
+
+	getLeases(context){
+		return context.$http.get(LEASES_URL).then(function(response){
+			if(response.body.status){
+				context.leases = response.body.data.leases;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+	getLease(context, lease_id){
+
+		return context.$http.get(LEASES_URL + lease_id).then(function(response){
+
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+
+	getFirstInvoice(context, lease_id){
+
+		return context.$http.get(FIRST_INVOICE_URL + lease_id ).then(function(response){
+			if(response.body.status){
+				if(!response.body.data.invoice_id) return false;
+				context.invoice_id = response.body.data.invoice_id;
+			} else {
+				console.log(response.body.msg);
+
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+	getTenant(context){
+
+		return context.$http.get(TENANT_URL).then(function(response){
+			if(response.body.status){
+				context.tenant = response.body.data.tenant;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+
+	saveLease(context, data){
+		return context.$http.post(SAVE_LEASE_URL, data).then(function(response){
+			console.log(response);
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+
+				if(context.onboard){
+					context.lease.id = response.body.data.id;
+					context.$router.push('/leases/create/' + context.lease.id);
+				} else {
+					context.$emit('close');
+					context.$emit('refetch');
+				}
+
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			console.log(err);
+			setError(context, context.$options.name, err.statusText.toString());
+		})
+
+	},
+
+
+	saveTenant(context, data){
+		return context.$http.post(SAVE_TENANT_URL, data).then(function(response){
+			if(response.body.status){
+				context.tenant.id = response.body.data.id;
+				context.tenant.user_id = response.body.data.user_id;
+				context.addTenantToLease();
+			} else {
+				context.stopLoading(context.$options.name);
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			console.log(err);
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+	saveTenantOrder(context, data){
+		return context.$http.post(SAVE_TENANT_ORDER, data).then(function(response){
+			if(response.body.status){
+				return response.data;
+			} else {
+				context.stopLoading(context.$options.name);
+				setError(context, context.$options.name, response.body.msg);
+				throw response.body.msg
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+			throw err.toString();
+		})
+
+	},
+
+	addTenantToLease(context, data){
+		return context.$http.post(ADD_TENANT_TO_LEASE_URL, data).then(function(response){
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				context.$emit('refetch');
+				context.$emit('close');
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			console.log(err);
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+	saveInvoice(context, data){
+
+		return context.$http.post(SAVE_INVOICE_URL, data).then(function(response){
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				if(context.onboard){
+					context.$emit('continue');
+				} else {
+					//TODO, make success modal
+					alert('Invoice Updated');
+				}
+			} else {
+				context.stopLoading(context.$options.name);
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			console.log(err);
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+
+	/* Settings */
+
+	getCategories(context){
+		return context.$http.post(CATEGORIES_URL).then(function(response){
+			if(response.body.status){
+				context.categories = response.body.data.categories;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+	getProducts(context){
+		return context.$http.get(PRODUCTS_URL).then(function(response){
+			console.log(response.body);
+			if(response.body.status){
+				context.products = response.body.data.products;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+	saveProduct(context, data){
+		return context.$http.post(PRODUCTS_URL, data).then(function(response){
+			if(response.body.status){
+				context.$emit('refetch');
+				context.$emit('close');
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			setError(context, context.$options.name, err.toString());
+		})
+
+	},
+
+	savePayment(context, data){
+		return context.$http.post(SAVE_PAYMENT_URL, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				context.confimed = true;
+				context.payment.id = response.body.data.id;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+
+		})
+	},
+
+	saveCreditCard(context, data){
+		context.$http.post(SAVE_CREDIT_CARD_URL, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				context.$emit('refetch');
+				context.$emit('close');
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+
+		})
+	},
+	saveACHAccount(context, data){
+		context.$http.post(SAVE_ACH_URL, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				context.$emit('refetch');
+				context.$emit('close');
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+
+		})
+	},
+
+
+	/* Signing */
+	getDocToSign(context, hash, contextField){
+		contextField = contextField || context.$options.name;
+		return context.$http.get(GET_DOCUMENT + '/' + hash).then(response => {
+			context.stopLoading(contextField);
+
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg
+			}
+		}).catch((err) => {
+			context.stopLoading(contextField);
+			setError(context, contextField, err.toString());
+			throw err;
+		})
+	},
+
+	saveSignature(context, data, contextField){
+		contextField = contextField || context.$options.name;
+		return context.$http.post(SAVE_SIGNATURE, data).then(response => {
+			context.stopLoading(contextField);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg
+			}
+		}).catch((err) => {
+			context.stopLoading(contextField);
+			setError(context, contextField, err.toString());
+
+		})
+	},
+
+	generatePdf(context, data, contextField){
+		contextField = contextField || context.$options.name;
+		return context.$http.post(GENERATE_PDF, data).then(response => {
+			context.stopLoading(contextField);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg;
+			}
+		}).catch((err) => {
+			context.stopLoading(contextField);
+			setError(context, contextField, err.toString());
+			throw err;
+
+		})
+	},
+
+	saveDocument(context, data){
+		return context.$http.post(DOCUMENT, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg
+
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+			throw response.body.msg
+		})
+	},
+
+	deleteDoc(context, id){
+
+		return context.$http.delete(DOCUMENT + id).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg
+
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+			throw response.body.msg
+		})
+	},
+
+	deleteUpload(context, id){
+		return context.$http.delete(UPLOADS  + id).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg
+
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+			throw response.body.msg
+		})
+	},
+
+	generateDocument(context, data){
+		return context.$http.post(GENERATE_DOCUMENT, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg;
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+			throw err;
+		})
+	},
+
+
+	getDocs(context, data){
+
+		var query = data ? '?' + serialize(data): '';
+
+		return context.$http.get(DOCUMENT + query ).then(response => {
+			context.stopLoading(context.$options.name);
+			console.log(response);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+	getMergeFields(context, data){
+		return context.$http.post(GET_MERGE_FIELDS, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+	getDocument(context, document_id){
+		return context.$http.get(DOCUMENT + document_id).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+	saveField(context, data){
+		return context.$http.post(FIELDS, data).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+	deleteField(context, field_id){
+		return context.$http.delete(FIELDS + '/' + field_id).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	getLeaseDocument(context, lease_id){
+		return context.$http.get(GET_LEASE + '/' + lease_id).then(response => {
+			context.stopLoading(context.$options.name);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				setError(context, context.$options.name, response.body.msg);
+			}
+		}).catch((err) => {
+			context.stopLoading(context.$options.name);
+			setError(context, context.$options.name, err.toString());
+		})
+	},
+
+	setUpSigners(context, data, contextField){
+		var contextField = contextField || context.$options.name;
+		console.log(data);
+		return context.$http.post(SET_UP_SIGNERS, data).then(response => {
+			context.stopLoading(contextField);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg;
+			}
+		}).catch((err) => {
+			context.stopLoading(contextField);
+			setError(context, contextField, err.toString());
+			throw  err.toString();
+		})
+	},
+
+	sendSignLink(context, data, contextField){
+		var contextField = contextField || context.$options.name;
+
+		return context.$http.post(SEND_SIGN_LINK, data).then(response => {
+			context.stopLoading(contextField);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg;
+			}
+		}).catch((err) => {
+			context.stopLoading(contextField);
+			setError(context, contextField, err.toString());
+			throw  err.toString();
+		})
+	},
+
+	getSignLink(context, data, contextField){
+		var contextField = contextField || context.$options.name;
+
+		return context.$http.post(GET_SIGN_LINK, data).then(response => {
+			context.stopLoading(contextField);
+			if(response.body.status){
+				return response.body.data;
+			} else {
+				throw response.body.msg;
+			}
+		}).catch((err) => {
+			context.stopLoading(contextField);
+			setError(context, contextField, err.toString());
+			throw  err.toString();
+		})
+	},
+	recordSignAction(context, data, contextField){
+		return context.$http.post(RECORD_SIGN_ACTION, data).then(response => {
+			context.stopLoading(contextField);
+			console.log(response);
+			if(response.body.status){
+				return response.body;
+			} else {
+				throw response.body.msg;
+			}
+		}).catch((err) => {
+
+			context.stopLoading(contextField);
+			setError(context, contextField, err.toString());
+			throw err
+		})
+	}
+
+
+
+
+
+}

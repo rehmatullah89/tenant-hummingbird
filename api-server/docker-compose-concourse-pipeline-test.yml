@@ -1,0 +1,67 @@
+version: '3'
+services:
+  api-test:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    volumes:
+      - /home/app/hummingbird/node_modules
+      - ../repo:/home/app/hummingbird/
+    command:
+      - /bin/sh
+      - -c
+      - |
+          node test_dynamodb_config.js
+          sleep 20
+          npm run coverage 
+    env_file:
+      - env_test.env
+    environment:
+      AWS_REGION: 'us-east-1'
+      AWS_ENDPOINT: 'http://172.17.0.1:8000'
+    ports:
+      - '3001:3001'
+      - '9220:9229'
+    links:
+      - redis:redis
+      - mysql:mysql
+      - dynamodb-local:dynamodb-local
+    networks:
+      - hb
+    extra_hosts:
+      - "api.hummingbird.local:127.0.0.1"
+    depends_on:
+      - redis
+      - mysql
+      - dynamodb-local
+  mysql:
+    restart: always
+    image: 380246911330.dkr.ecr.us-east-1.amazonaws.com/hb-pipeline-testing-mysql-base-db:1.0
+    command: mysqld --sql_mode="" --default-authentication-plugin=mysql_native_password
+#    volumes:
+#        - ./database-uat:/docker-entrypoint-initdb.d
+#        # - ./mysql-data:/var/lib/mysql
+    env_file:
+        - env_test.env
+    networks:
+        - hb
+    ports:
+        - '8306:3306'
+  redis:
+    image: redis
+    networks:
+      - hb
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -inMemory"
+    image: "amazon/dynamodb-local:latest"
+    ports:
+      - "8000:8000"
+    environment:
+      AWS_REGION: 'us-east-1'
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+    networks:
+      - hb
+networks:
+  hb:

@@ -1,0 +1,616 @@
+openapi: 3.0.1
+info:
+  title: Hummingbird API
+  version: 1.0.0
+  description: >-
+    API server for stuff. Probably should add a better description here. For
+    endpoints that require authorization, use the login endpoint below to
+    request a token then copy-paste it where asked. Project is hosted on Gitlab
+    [here](https://gitlab.com/storageapi/hummingbird/api-server])
+  contact:
+    email: jeff@tenantinc.com
+    name: Jeff Ryan
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+servers:
+  - url: 'http://api.hummingbird.local:3001/v1'
+    variables: {}
+    description: /etc/hosts
+  - url: 'http://localhost:3001/v1'
+    description: port
+    variables: {}
+tags:
+  - name: auth
+    description: Authorization & authentication
+  - name: dashboard
+    description: User Dashboard screen
+  - name: download center
+    description: Operations related to Download Center
+  - name: lease
+    description: Lease information
+  - name: downloads
+    description: Endpoints that can download resources
+    externalDocs:
+      description: ''
+      url: ''
+  - name: property
+    description: Physical locations
+  - name: tasks
+    description: Get shit done
+  - name: uploads
+    description: Endpoints that can upload resources
+    externalDocs:
+      description: ''
+      url: ''
+  - name: incomplete
+    description: Endpoints with incomplete/partial documenation
+  - name: files
+    description: Get a list of files from GDS file app
+paths:
+  /dashboard/types:
+    get:
+      tags:
+        - dashboard
+      summary: Get information related to user's main screen
+      operationId: getDashboard
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        minW:
+                          type: number
+                          description: Minimum width of (spaces?)
+                        minH:
+                          type: number
+                          description: Minimum height of (spaces?)
+                        maxW:
+                          type: number
+                          description: Maximum width of (spaces?)
+                        maxH:
+                          type: number
+                          description: Maximum height of (spaces?)
+                        type:
+                          type: number
+                        datasource:
+                          type: string
+      security:
+        - api_key: []
+  '/leases/{lease_id}/property':
+    get:
+      tags:
+        - lease
+        - property
+        - incomplete
+      summary: Find property related to lease?
+      description: Get properties for given lease ID
+      operationId: getLeaseProperty
+      parameters:
+        - name: lease_id
+          in: path
+          description: <b>Hashed</b> lease ID
+          example: JKGj6NjrR7
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid structure/syntax
+          content: {}
+        '403':
+          description: Permission error
+        '404':
+          description: No property found
+          content: {}
+      security:
+        - api_key: []
+  /login:
+    post:
+      tags:
+        - auth
+      summary: Basic request to authenticate user
+      operationId: postLogin
+      requestBody:
+        content:
+          application/json:
+            example:
+              username: Hummingbird
+              password: Tenant2020
+            schema:
+              properties:
+                username:
+                  type: string
+                  description: User's name
+                password:
+                  type: string
+                  description: User's password
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseObject'
+              examples:
+                Succesful Response:
+                  value: |-
+                    {
+                      "status": 200,
+                      "data": {
+                        "contact": {
+                          "id": "kq2Wp1zjWr",
+                          "first": "Humming",
+                          "last": "Bird",
+                          "email": "a.mushtaq@ssidecisions.com",
+                          "role": "admin",
+                          "Companies": [
+                            {
+                              "id": "kQoBXpBpnx",
+                              "name": "Sandbox - Storage",
+                              "subdomain": "sandbox"
+                            },
+                            {
+                              "id": "k1lv1dBRx5",
+                              "name": "StoragePRO",
+                              "subdomain": "storagepro"
+                            },
+                            {
+                              "id": "PD7Bolv5Zp",
+                              "name": "USA Storage Centers",
+                              "subdomain": "usastoragecenters"
+                            },
+                            {
+                              "id": "5qPvkRBe6b",
+                              "name": "Derrel's Mini Storage",
+                              "subdomain": "dms"
+                            },
+                            {
+                              "id": "xlMvQGj8zq",
+                              "name": "Ramsey Storage Center",
+                              "subdomain": "ramsey"
+                            },
+                            {
+                              "id": "R0ovxnjDzk",
+                              "name": "BSS Properties Inc.",
+                              "subdomain": "burlington"
+                            },
+                            {
+                              "id": "kpLvbyB46K",
+                              "name": "Burlington Self Storage",
+                              "subdomain": "bss"
+                            },
+                            {
+                              "id": "XYgBdlBwyV",
+                              "name": "StorCo Self Storage",
+                              "subdomain": "storco"
+                            },
+                            {
+                              "id": "PlRjy6BLOe",
+                              "name": "Double Book",
+                              "subdomain": "doublebook"
+                            },
+                            {
+                              "id": "mbE2wyBXL9",
+                              "name": "Single Book",
+                              "subdomain": "singlebook"
+                            },
+                            {
+                              "id": "dJKBlwjZ3x",
+                              "name": "Olympia Self Storage",
+                              "subdomain": "olympiastorage"
+                            }
+                          ],
+                          "Role": {
+                            "id": "QZxjPrpvlA",
+                            "company_id": "kQoBXpBpnx",
+                            "user_id": null,
+                            "role_id": "kQoBXpBpnx",
+                            "contact_id": "kq2Wp1zjWr",
+                            "pin": "0",
+                            "status": 1,
+                            "name": "Software Administrator"
+                          },
+                          "Leases": [],
+                          "Company": {
+                            "id": "kQoBXpBpnx",
+                            "name": "Sandbox - Storage",
+                            "firstname": "Jeff",
+                            "lastname": "Ryan",
+                            "email": "jeff@h6design.com",
+                            "phone": "3234198574",
+                            "subdomain": "sandbox",
+                            "logo": "h6design_logo.png"
+                          }
+                        },
+                        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250YWN0Ijp7ImlkIjoia3EyV3AxempXciIsImZpcnN0IjoiSHVtbWluZyIsImxhc3QiOiJCaXJkIiwiZW1haWwiOiJhLm11c2h0YXFAc3NpZGVjaXNpb25zLmNvbSIsInJvbGUiOiJhZG1pbiIsIkNvbXBhbmllcyI6W3siaWQiOiJrUW9CWHBCcG54IiwibmFtZSI6IlNhbmRib3ggLSBTdG9yYWdlIiwic3ViZG9tYWluIjoic2FuZGJveCJ9LHsiaWQiOiJrMWx2MWRCUng1IiwibmFtZSI6IlN0b3JhZ2VQUk8iLCJzdWJkb21haW4iOiJzdG9yYWdlcHJvIn0seyJpZCI6IlBEN0JvbHY1WnAiLCJuYW1lIjoiVVNBIFN0b3JhZ2UgQ2VudGVycyIsInN1YmRvbWFpbiI6InVzYXN0b3JhZ2VjZW50ZXJzIn0seyJpZCI6IjVxUHZrUkJlNmIiLCJuYW1lIjoiRGVycmVsJ3MgTWluaSBTdG9yYWdlIiwic3ViZG9tYWluIjoiZG1zIn0seyJpZCI6InhsTXZRR2o4enEiLCJuYW1lIjoiUmFtc2V5IFN0b3JhZ2UgQ2VudGVyIiwic3ViZG9tYWluIjoicmFtc2V5In0seyJpZCI6IlIwb3Z4bmpEemsiLCJuYW1lIjoiQlNTIFByb3BlcnRpZXMgSW5jLiIsInN1YmRvbWFpbiI6ImJ1cmxpbmd0b24ifSx7ImlkIjoia3BMdmJ5QjQ2SyIsIm5hbWUiOiJCdXJsaW5ndG9uIFNlbGYgU3RvcmFnZSIsInN1YmRvbWFpbiI6ImJzcyJ9LHsiaWQiOiJYWWdCZGxCd3lWIiwibmFtZSI6IlN0b3JDbyBTZWxmIFN0b3JhZ2UiLCJzdWJkb21haW4iOiJzdG9yY28ifSx7ImlkIjoiUGxSank2QkxPZSIsIm5hbWUiOiJEb3VibGUgQm9vayIsInN1YmRvbWFpbiI6ImRvdWJsZWJvb2sifSx7ImlkIjoibWJFMnd5QlhMOSIsIm5hbWUiOiJTaW5nbGUgQm9vayIsInN1YmRvbWFpbiI6InNpbmdsZWJvb2sifSx7ImlkIjoiZEpLQmx3alozeCIsIm5hbWUiOiJPbHltcGlhIFNlbGYgU3RvcmFnZSIsInN1YmRvbWFpbiI6Im9seW1waWFzdG9yYWdlIn1dfSwiYWN0aXZlIjp7ImlkIjoia1FvQlhwQnBueCIsImdkc19vd25lcl9pZCI6Im93bjVkMDA4MzVmZDMxNDQ2YjBhYWQyYjk3OTczYTc0NmVmIiwibmFtZSI6IlNhbmRib3ggLSBTdG9yYWdlIiwiZmlyc3RuYW1lIjoiSmVmZiIsImxhc3RuYW1lIjoiUnlhbiIsImVtYWlsIjoiamVmZkBoNmRlc2lnbi5jb20iLCJwaG9uZSI6IjMyMzQxOTg1NzQiLCJzdWJkb21haW4iOiJzYW5kYm94IiwibG9nbyI6Img2ZGVzaWduX2xvZ28ucG5nIn0sInByb3BlcnRpZXMiOiJQd3VZVlQ5YmlORXNNcGM0ZXRZNGZFeXNvbVNiYmNaUVVST3RBT2hWSkZRMUNMOUk4ZUhyMGYzZVQ2OFU1cFNSZUNBeUhNWWZtZVRHUVV5bVN3TXRWYmlLQUN4cElEeHM0UmNsR2Z5OXNZcWgxT1MzSmNLUWhhS2Y2M0M5bCIsImlhdCI6MTYxNjAwODkzNSwiZXhwIjoxNjE2MDk1MzM1fQ.9NS55kMgO7IjGlHDY_R0KWIIhLQ0GzQMRt9VoQ1vXvA"
+                      }
+                    }
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              examples:
+                Incorrect structure/syntax:
+                  value: |-
+                    {
+                      "status": 400,
+                      "data": {},
+                      "msg": "\"username\" is required; \"password\" is required; \"usernames\" is not allowed; \"passwords\" is not allowed; "
+                    }
+        '404':
+          description: Username/Password is incorrect
+          content:
+            application/json:
+              examples:
+                Incorrect username/password:
+                  value: '{"status":404,"data":{},"msg":"User not found"}'
+  /logout:
+    get:
+      tags:
+        - auth
+      summary: Updates a pet in the store with form data
+      operationId: getLogout
+      responses:
+        '200':
+          description: Success
+        '405':
+          description: Invalid input
+          content: {}
+  /tasks:
+    get:
+      tags:
+        - tasks
+        - incomplete
+      summary: Updates a pet in the store with form data
+      operationId: getTasks
+      responses:
+        '200':
+          description: ok
+        '405':
+          description: Invalid input
+          content: {}
+      security:
+        - api_key: []
+  '/properties/list/files/{property_id}':
+    get:
+      tags:
+        - files
+      summary: 'get a list of documents for a single property from GDS file-app'
+      operationId: getFileFilesFromGDSfilesApp
+      parameters:
+        - in: path
+          name: property_id
+          schema:
+            type: string
+          required: true
+          description: gds_id of the property
+        - in: query
+          name: start_date
+          schema:
+            type: string
+          description: start_date of filter
+        - in: query
+          name: end_date
+          schema:
+            type: string
+          description: end date of filter
+          
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/FilesFromGds'
+              examples:
+                Successful Response:
+                  value: |-
+                    {
+                      "status": 200,
+                      "files_list": [
+                          {
+                            "id": "docfnds3fdjk3",
+                            "file_name": "test1",
+                            "description": "",
+                            "facility_id": "fac90d90e9fhsdf9shf9ds8",
+                            "file_type": "other",
+                            "file_size": 3945895,
+                            "content-type": "application/octet-stream",
+                            "attributes": {
+                              "last_downloaded_on": "2021-04-02T23:51:03.726269",
+                              "downloaded_by": null,
+                              "number_of_documents": 3
+                            },
+                            "created_on": "2021-04-01T23:51:03.726269"
+                          },
+                          {
+                            "id": "docfndgfdscck3",
+                            "file_name": "test2",
+                            "description": "",
+                            "facility_id": "fac90d90e9fhsdf9shf9ds8",
+                            "file_type": "other",
+                            "file_size": 3945895,
+                            "content-type": "application/octet-stream",
+                            "attributes": {
+                              "last_downloaded_on": "2021-04-02T23:51:03.726269",
+                              "downloaded_by": null,
+                              "number_of_documents": 2
+                            },
+                            "created_on": "2021-04-01T23:51:03.726269"
+                          }
+                        ]
+                    }
+      security:
+        - api_key: []
+                    
+  '/properties/file/{property_id}/{file}':
+    get:
+      tags:
+        - files
+      summary: 'Used to get the download_url for a single document in GDS file-app'
+      operationId: getAndPutFileFilesFromGDSfilesApp
+      parameters:
+        - in: path
+          name: property_id
+          schema:
+            type: string
+          required: true
+          description: gds_id of the property
+        - in: path
+          name: file
+          schema:
+            type: string
+          required: true
+          description: id of the file
+      
+          
+          
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/FileFromGds'
+              examples:
+                Successful Response:
+                  value: |-
+                    {
+                      "status": 200,
+                      "file": 
+                          {
+                            "file_name": "test1",
+                            "description": "",
+                            "facility_id": "fac90d90e9fhsdf9shf9ds8",
+                            "file_type": "other",
+                            "file_size": 3945895,
+                            "content-type": "application/octet-stream",
+                            "attributes": {
+                              "last_downloaded_on": "2021-04-02T23:51:03.726269",
+                              "downloaded_by": null,
+                              "number_of_documents": 3
+                            },
+                            "created_on": "2021-04-01T23:51:03.726269",
+                            "download_url": "url"
+                          }
+                    }
+      security:
+        - api_key: []
+                    
+components:
+  schemas:
+    LoginResponseObject:
+      type: object
+      properties:
+        status:
+          type: number
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            first:
+              type: string
+            last:
+              type: string
+            email:
+              type: string
+            role:
+              type: string
+            Companies:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  subdomain:
+                    type: string
+            Role:
+              type: object
+              properties:
+                id:
+                  type: string
+                company_id:
+                  type: string
+                user_id:
+                  type: string
+                role_id:
+                  type: string
+                contact_id:
+                  type: string
+                pin:
+                  type: string
+                status:
+                  type: number
+                name:
+                  type: string
+            leases:
+              type: array
+              items:
+                type: object
+            Company:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                subdomain:
+                  type: string
+                logo:
+                  type: string
+            token:
+              type: string
+    ApiResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        data:
+          type: object
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        petId:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+        shipDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          description: Order Status
+          enum:
+            - placed
+            - approved
+            - delivered
+        complete:
+          type: boolean
+          default: false
+      xml:
+        name: Order
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+      xml:
+        name: Category
+    FilesFromGds:
+      type: object
+      properties:
+        status:
+          type: integer
+        files_app:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              file_name:
+                type: string
+              description:
+                type: string
+              facility_id:
+                type: string
+              file_type:
+                type: string
+              file_size:
+                type: string
+              content_type:
+                type: string
+              attributes:
+                type: object
+                properties:
+                  last_downloaded_on: 
+                    type: string
+                  downloaded_by:
+                    type: string
+                  number_of_documents:
+                    type: integer
+              created_on:
+                type: string
+    FileFromGds:
+      type: object
+      properties:
+        status:
+          type: integer
+        file:
+          type: object
+          properties:
+            file_name: 
+              type: string
+            description:
+              type: string
+            facility_id:
+              type: string
+            file_type:
+              type: string
+            file_size:
+              type: string
+            content-type:
+              type: string
+            attributes: 
+              type: object
+              properties:
+                last_downloaded_on: 
+                  type: string
+                downloaded_on: 
+                  type: string
+                number_of_documents:
+                  type: integer
+            created_on:
+              type: string
+            downloaded_url:
+              type: string
+            
+        
+              
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: Authorization
+      in: header

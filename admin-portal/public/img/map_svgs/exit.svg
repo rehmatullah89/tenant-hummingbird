@@ -1,0 +1,23 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 238.8 364.15">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 55px;
+        font-family: Lato-Bold, Lato;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+      }
+
+      .cls-1, .cls-3 {
+        fill: #3f4040;
+      }
+
+      .cls-2 {
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </defs>
+  <title>exit</title>
+  <text class="cls-1" transform="translate(50.36 348.48)">EXI<tspan class="cls-2" x="93.06" y="0">T</tspan></text>
+  <path class="cls-3" d="M382.55,295.91v-31.8h-79.8v-31.8h79.8v-31.8l47.7,47.7ZM366.65,280v63.6h-79.8v47.7l-95.4-47.4V136.61h175.2v79.8h-15.9v-63.9H223.25l63.6,31.8v143.4h63.6V280Z" transform="translate(-191.45 -136.61)"/>
+</svg>

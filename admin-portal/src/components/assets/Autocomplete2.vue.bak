@@ -1,0 +1,570 @@
+<template>
+
+    <div class="combobox-wrapper" :class="theme">
+
+        <div role="combobox"
+             aria-expanded="false"
+             aria-owns="ex3-listbox"
+             aria-haspopup="listbox"
+             id="id + 'combobox'"
+        >
+             <!--@click="checkHide"-->
+            <input type="text"
+                   :name="name"
+                   :id="id"
+                   aria-autocomplete="both"
+                   aria-controls="ex3-listbox"
+                   :aria-labelledby="id"
+                   @keydown="setActiveItem"
+                   @keyup="checkKey"
+                   @focus="checkShow"
+                   @blur="checkSelection"
+                   ref="input"
+                   v-model="search"
+                   :placeholder="placeholder"
+                   :aria-activedescendant="activeDecendant"
+            >
+
+            <div class="combobox-dropdown"
+                 v-show="showAll"
+                 :id="id + '-arrow'"
+                 tabindex="-1"
+                 role="button"
+                 @click="arrowClick"
+                 aria-label="Show vegetable options">
+                
+            </div>
+
+        </div>
+
+        <ul aria-labelledby="ex3-label"
+            role="listbox"
+            :id="id + '-listbox'"
+            class="listbox"
+            :aria-expanded="showList"
+            v-show="showList"
+            ref="list"
+        >
+            <li
+                v-for="result, i in results"
+                class="result"
+                role="option"
+                :id="id + 'result-item-' + i"
+                :aria-selected="i == activeIndex"
+                :class="{focused: i == activeIndex}"
+                @click="clickItem(result, i)"
+                :ref="'element_' + optionString(result) "
+            >
+                <slot name="option" :data="result" :value="result.address">
+                    {{ optionLabel(result) }}
+                </slot>
+            </li>
+
+        </ul>
+    </div>
+
+</template>
+
+
+
+<script type="text/babel">
+    import { mixin as clickaway } from 'vue-clickaway';
+
+    export default{
+        data(){
+            return {
+                showList: false,
+                search: '',
+                activeIndex: -1,
+                resultsCount: 0,
+                hasInlineAutocomplete: false,
+                shouldAutoSelect:false,
+                isInitial: true,
+                KeyCode: {
+                    BACKSPACE: 8,
+                    TAB: 9,
+                    RETURN: 13,
+                    ESC: 27,
+                    SPACE: 32,
+                    PAGE_UP: 33,
+                    PAGE_DOWN: 34,
+                    END: 35,
+                    HOME: 36,
+                    LEFT: 37,
+                    UP: 38,
+                    RIGHT: 39,
+                    DOWN: 40,
+                    DELETE: 46
+                },
+                results: [],
+                moveUpDownEnabled: false,
+                focused: null
+            }
+        },
+        computed:{
+            activeDecendant(){
+                if(!this.activeIndex) return null;
+                return 'result-item-' + this.activeIndex;
+            }
+        },
+        filters:{},
+        created(){
+            this.setVal(this.value);
+        },
+        methods: {
+            slugify(text){
+                return text.toString().toLowerCase()
+                        .replace(/\s+/g, '-')           // Replace spaces with -
+                        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+                        .replace(/^-+/, '')             // Trim - from start of text
+                        .replace(/-+$/, '');            // Trim - from end of text
+            },
+            optionString(o){
+                if(this.id && o[this.id]){
+                    return this.slugify(o[this.id])
+                }
+                if(this.label && o[this.label]){
+                    return this.slugify(o[this.label])
+                }
+
+                return this.slugify(o.toString());
+            },
+            optionLabel(o){
+                if(this.label && o[this.label]){
+                    return o[this.label]
+                }
+                return o;
+            },
+            emitSearch(){
+                this.$emit('search', this.search);
+            },
+            setVal(newVal){
+
+                var search = '';
+                if(this.label &&  typeof newVal[this.label] != 'undefined'){
+                    search = newVal[this.label];
+                } else {
+                    search = newVal;
+                }
+
+                this.search = search;
+
+                if(this.id && newVal[this.id]){
+                    this.$emit('input', newVal[this.id]);
+                } else {
+                    this.$emit('input', newVal);
+                }
+
+            },
+            arrowClick(){
+
+                if (this.showList) {
+                    this.$refs.input.focus();
+                    this.hideListbox();
+                }
+                else {
+                    this.$refs.input.focus();
+                    this.emitSearch();
+                    this.updateResults(true);
+                }
+            },
+
+            checkKey(evt){
+                var key = evt.which || evt.keyCode;
+
+                switch (key) {
+                    case this.KeyCode.UP:
+                    case this.KeyCode.DOWN:
+                    case this.KeyCode.ESC:
+                    case this.KeyCode.RETURN:
+                        evt.preventDefault();
+                        return;
+                    default:
+                        this.emitSearch();
+                        // this.updateResults(true);
+                }
+
+                if (this.hasInlineAutocomplete) {
+                    switch (key) {
+                        case this.KeyCode.BACKSPACE:
+                            return;
+                        default:
+                            this.autocompleteItem();
+                    }
+                }
+
+            },
+            updateResults(){
+
+                this.hideListbox();
+
+                if (!this.showAll && !this.search) {
+                    this.results = [];
+                }
+
+                if (this.results.length && !this.isInitial) {
+                    this.showList = true;
+                    this.resultsCount = this.results.length;
+
+                    if(this.search){
+                        this.activeIndex = this.results.indexOf(this.search);
+
+                    } else if (this.shouldAutoSelect) {
+                        this.activeIndex = 0;
+                    }
+                    this.$emit('onShow');
+                }
+                this.isInitial = false;
+            },
+
+            setActiveItem(evt){
+                var key = evt.which || evt.keyCode;
+
+                if (key === this.KeyCode.ESC) {
+                    this.hideListbox();
+                    this.setVal('')
+                    //this.search = '';
+                    return;
+                }
+                if (this.resultsCount < 1) {
+                    if (this.hasInlineAutocomplete && (key === this.KeyCode.DOWN || key === this.KeyCode.UP)) {
+                        this.emitSearch();
+                      //  this.updateResults(true);
+                    }
+                    else {
+                        return;
+                    }
+                }
+
+                switch (key) {
+                    case this.KeyCode.UP:
+                        if (this.activeIndex <= 0) {
+                            this.activeIndex = this.resultsCount - 1;
+                        }
+                        else {
+                            this.activeIndex--;
+                        }
+                        break;
+                    case this.KeyCode.DOWN:
+                        if (this.activeIndex === -1 || this.activeIndex >= this.resultsCount - 1) {
+                            this.activeIndex = 0;
+                        }
+                        else {
+                            this.activeIndex++;
+                        }
+                        this.showList = true;
+                        break;
+                    case this.KeyCode.RETURN:
+
+                        this.selectItem(this.results[this.activeIndex]);
+                        return;
+                    case this.KeyCode.TAB:
+                        this.checkSelection();
+                        this.hideListbox();
+                        return;
+                    default:
+                        return;
+                }
+
+
+
+
+                var element = this.$refs['element_' +  this.optionString(this.results[this.activeIndex])][0];
+
+                // MOVE WINDOW TO PROPER POSITION
+
+                if (this.$refs.list.scrollHeight > this.$refs.list.clientHeight) {
+                    var scrollBottom = this.$refs.list.clientHeight + this.$refs.list.scrollTop;
+
+                    var elementBottom = element.offsetTop + element.offsetHeight;
+                    if (elementBottom > scrollBottom) {
+                        this.$refs.list.scrollTop = elementBottom - this.$refs.list.clientHeight;
+                    }
+                    else if (element.offsetTop < this.$refs.list.scrollTop) {
+                        this.$refs.list.scrollTop = element.offsetTop;
+                    }
+                }
+
+
+
+                evt.preventDefault();
+
+            },
+
+            clickItem(item, i){
+                this.selectItem(item);
+            },
+
+            selectItem(item){
+                if (item) {
+                    //this.search = item;
+                    this.setVal(item)
+                    this.hideListbox();
+                }
+            },
+
+            checkShow(evt){
+                this.emitSearch();
+                //this.updateResults(false);
+            },
+
+            checkHide: function (evt) {
+                if (evt.target === this.input || this.combobox.contains(evt.target)) {
+                    return;
+                }
+                this.hideListbox();
+            },
+
+            hideListbox: function () {
+                this.showList = false;
+                this.activeIndex = -1;
+           //     this.results = [];
+                //this.resultsCount = 0;
+                this.$emit('onhide');
+            },
+
+            checkSelection: function () {
+                var found = this.results.filter(r => {
+                    if(this.label){
+                        return r[this.label] == this.search;
+                    } else {
+                        return r == this.search;
+                    }
+                });
+                if (!found.length) {
+                    //this.search = '';
+                    this.setVal('');
+                    return;
+                }
+
+                this.activeIndex = this.results.indexOf(found[0]);
+                this.selectItem(found[0]);
+
+            },
+            setInitial(){
+                var found = this.results.filter(r => {
+                    if(this.id){
+                        return r[this.id] == this.value;
+                    } else {
+                        return r == this.value;
+                    }
+                });
+                if (!found.length) {
+                    this.setVal('');
+                    return;
+                }
+
+                this.activeIndex = this.results.indexOf(found[0]);
+                this.selectItem(found[0]);
+
+            }
+
+    },
+        mixins: [ clickaway ],
+        mounted (){},
+        props: {
+            id:{
+                type: String,
+                required: false
+            },
+            name:{
+                type: String,
+                required: false
+            },
+            options: {
+                type: Array,
+                required: false
+            },
+            value: {
+
+                required: false
+            },
+            theme: {
+                type: String,
+                required: false,
+                default: 'light'
+            },
+            showAll:{
+                type: Boolean,
+                required: false,
+                default: false
+            },
+
+            placeholder: {
+                type: String,
+                required: false,
+                default: ''
+            },
+
+
+            default:{
+                type: String,
+                required: false
+            },
+
+            hasEmpty: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+
+            id:{
+                type: String,
+                required: false
+            },
+            label:{
+                type: String,
+                required: false
+            }
+        },
+        watch:{
+            options(o){
+                this.results = o;
+                this.updateResults();
+            },
+            value(val){
+                console.log("this is the value", val);
+                this.setVal(val);
+            }
+        }
+
+    }
+</script>
+<style scoped>
+
+    .combobox-wrapper {
+        display: block;
+        position: relative;
+        font-size: 14px;
+    }
+
+
+    .listbox {
+        min-width: 230px;
+        background: white;
+        border: 1px solid #ccc;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        top: 1.7em;
+        z-index: 1;
+        max-height: 300px;
+        overflow-y: auto;
+
+    }
+
+    .listbox .result {
+        cursor: default;
+        margin: 0;
+    }
+
+    .listbox .result:hover, .grid .result-row:hover {
+        background: #f5f7f8;
+    }
+
+    .listbox .focused, .grid .focused {
+        background: #f5f7f8;
+    }
+
+    /*.grid .focused-cell {*/
+        /*outline-style: dotted;*/
+        /*outline-color: green;*/
+    /*}*/
+
+    .combobox-wrapper input {
+        font-size: inherit;
+        border: 1px solid #aaa;
+        border-radius: 2px;
+        line-height: 1.5em;
+        padding-right: 30px;
+        width: 200px;
+    }
+    .combobox-wrapper{
+        text-align: left;
+    }
+    .combobox-wrapper .combobox-dropdown {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 10px 15px;
+        color: #cccccc;
+        height: 100%;
+        border-left: 1px solid #e2e2e2;
+        font-family: "FontAwesome", sans-serif;
+
+    }
+
+
+    .combobox-wrapper input{
+        display: block;
+        width: 100%;
+        height: 38px;
+        padding: 8px 12px;
+
+        font-size: 14px;
+        line-height: 1.428571429;
+        color: #333333;
+        vertical-align: middle;
+        background-color: #ffffff;
+        border: 1px solid #cccccc;
+    }
+
+
+
+
+
+    .combobox-wrapper input:focus{
+        border: 2px solid #00b2ce;
+        outline: 0;
+    }
+
+    .combobox-wrapper .listbox{
+        top: 37px;
+        width: 100%;
+
+
+    }
+
+    .combobox-wrapper .listbox .result {
+        cursor: default;
+        margin: 0;
+        display: block;
+        position: relative;
+        line-height: 18px;
+        padding: 10px 12px;
+    }
+
+    .combobox-wrapper li:hover{
+        background-color: #f5f7f8;
+    }
+    .combobox-wrapper li.focused,
+    .combobox-wrapper li.focused:hover{
+        background: #f5f7f8;
+
+    }
+
+
+    /*.grid .result-row {*/
+        /*padding: 2px;*/
+        /*cursor: default;*/
+        /*margin: 0;*/
+    /*}*/
+
+    /*.grid .result-cell {*/
+        /*display: inline-block;*/
+        /*cursor: default;*/
+        /*margin: 0;*/
+        /*padding: 0 5px;*/
+    /*}*/
+
+    /*.grid .result-cell:last-child {*/
+        /*float: right;*/
+        /*font-size: 12px;*/
+        /*font-weight: 200;*/
+        /*color: #333;*/
+        /*line-height: 24px;*/
+    /*}*/
+
+</style>

@@ -1,0 +1,71 @@
+include /layouts/pdf
+    div
+        #lease !{content}
+
+    style.
+
+        #lease .initials {
+            margin: 0 ;
+            font-weight: 800;
+        }
+
+        .header{
+            margin-bottom: 30px;
+        }
+
+
+        #lease{
+            display: block;
+            width: 540px;
+            box-sizing: border-box;
+            line-height: 22px;
+            font-size: 13px;
+            font-family: "Open sans", sans-serif;
+        }
+
+        .group:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        h1{
+            padding: 25px 5px;
+            margin: 0 0 0 0;
+            float: right;
+            text-transform: uppercase;
+        }
+
+        .text-left{
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        img.logo {
+            height: 100px;
+            float: left;
+        }
+
+        .sig-holder {
+            display: inline-block;
+            position: relative;
+        }
+
+        .sig {
+            position: absolute;
+            width: 96px;
+            height: 60px;
+            top: -20px;
+            right: 0;
+        }
+
+        .sig img {
+            max-width: 100%;
+            max-height: 100%;
+        }

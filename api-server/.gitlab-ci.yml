@@ -1,0 +1,57 @@
+# Define the stages of the pipeline
+stages:
+  - test
+  - coverage
+
+# Define variables for the CI/CD environment
+variables:
+  NODE_VERSION: "latest" # Change this to your desired Node.js version
+  NPM_CACHE_PATH: "$CI_PROJECT_DIR/.npm"
+
+# Define caches for the CI/CD environment
+cache:
+  key: ${CI_COMMIT_REF_SLUG}-node-modules
+  paths:
+    - node_modules/
+
+# Job to run tests using Jasmine
+test:
+  stage: test
+  image: node:${NODE_VERSION}
+  script:
+    - npm install
+    - npm run jasmine-node
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - junit_report/TEST-Main.xml
+  only:
+    - merge_requests
+    - uat
+    - dev
+    - hotfix/master
+    - master
+
+# Job to generate test coverage using IstanbulJS (nyc)
+coverage:
+  stage: coverage
+  image: node:${NODE_VERSION}
+  script:
+    - npm install
+    - npm run coverage
+  coverage: '/^Lines\s*:\s*([^%]+)/'
+  artifacts:
+    when: always
+    paths:
+      - coverage/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+  only:
+    - merge_requests
+    - uat
+    - dev
+    - hotfix/master
+    - master

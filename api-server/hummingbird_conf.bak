@@ -1,0 +1,54 @@
+server {
+    listen 3000;
+    server_name localhost;
+
+    location / {
+      proxy_pass http://localhost:3000;
+    }
+
+    error_page   503 @503;
+
+    location @503 {
+        error_page 405 = /system/maintenance.html;
+        passenger_enabled on;
+        if (-f $document_root/system/maintenance.html) {
+           rewrite ^(.*)$ /system/maintenance.html break;
+        }
+        rewrite ^(.*)$ /503.html break;
+    }
+
+    location @passenger {
+
+        # Tell Nginx and Passenger where your app's 'public' directory is
+        root /home/app/hummingbird/public;
+
+        # Turn on Passenger
+        passenger_enabled on;
+
+        # Tell Passenger that your app is a Node.js app
+        passenger_app_root /home/app/hummingbird/;
+        passenger_app_type node;
+        passenger_startup_file app.js;
+
+      }
+
+    # ssl on;
+    # ssl_ciphers ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DH+3DES:RSA+3DES:!ADH:!AECDH:!MD5;
+    # ssl_prefer_server_ciphers on;
+    # ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    #    ssl_certificate /etc/nginx/certs/leasecaptain.crt;
+    #    ssl_certificate_key /etc/nginx/certs/leasecaptain.key;
+    #    ssl_certificate /etc/letsencrypt/live/api.leasecaptain.com/fullchain.pem;
+    #    ssl_certificate_key /etc/letsencrypt/live/api.leasecaptain.com/privkey.pem;
+
+
+    try_files $uri /system/maintenance.html @passenger;
+
+    # Max upload size.
+    client_max_body_size 100M;
+
+    passenger_enabled on;
+    passenger_user app;
+
+  }
+}

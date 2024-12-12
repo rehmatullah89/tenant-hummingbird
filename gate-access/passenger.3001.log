@@ -1,0 +1,30 @@
+[ N 2020-02-02 22:06:41.9437 194/T1 age/Wat/WatchdogMain.cpp:1373 ]: Starting Passenger watchdog...
+[ N 2020-02-02 22:06:41.9625 197/T1 age/Cor/CoreMain.cpp:1340 ]: Starting Passenger core...
+[ N 2020-02-02 22:06:41.9630 197/T1 age/Cor/CoreMain.cpp:256 ]: Passenger core running in multi-application mode.
+[ N 2020-02-02 22:06:41.9747 197/T1 age/Cor/CoreMain.cpp:1015 ]: Passenger core online, PID 197
+[ N 2020-02-02 22:06:44.7219 197/T5 age/Cor/SecurityUpdateChecker.h:519 ]: Security update check: no update found (next check in 24 hours)
+App 238 output: THIS IS PASSENGER
+App 238 output: aquired undefined
+App 238 output: ERROR  { Error: 404 Not Found
+App 238 output:     at /home/app/hummingbird/app.js:53:12
+App 238 output:     at Layer.handle [as handle_request] (/home/app/hummingbird/node_modules/express/lib/router/layer.js:95:5)
+App 238 output:     at trim_prefix (/home/app/hummingbird/node_modules/express/lib/router/index.js:317:13)
+App 238 output:     at /home/app/hummingbird/node_modules/express/lib/router/index.js:284:7
+App 238 output:     at Function.process_params (/home/app/hummingbird/node_modules/express/lib/router/index.js:335:12)
+App 238 output:     at next (/home/app/hummingbird/node_modules/express/lib/router/index.js:275:10)
+App 238 output:     at app.use (/home/app/hummingbird/app.js:36:2)
+App 238 output:     at process._tickCallback (internal/process/next_tick.js:68:7) code: 404 }
+App 238 output: ERROR CODEZZZ 404
+App 238 output: Error: 404 Not Found
+App 238 output:     at /home/app/hummingbird/app.js:53:12
+App 238 output:     at Layer.handle [as handle_request] (/home/app/hummingbird/node_modules/express/lib/router/layer.js:95:5)
+App 238 output:     at trim_prefix (/home/app/hummingbird/node_modules/express/lib/router/index.js:317:13)
+App 238 output:     at /home/app/hummingbird/node_modules/express/lib/router/index.js:284:7
+App 238 output:     at Function.process_params (/home/app/hummingbird/node_modules/express/lib/router/index.js:335:12)
+App 238 output:     at next (/home/app/hummingbird/node_modules/express/lib/router/index.js:275:10)
+App 238 output:     at app.use (/home/app/hummingbird/app.js:36:2)
+App 238 output:     at process._tickCallback (internal/process/next_tick.js:68:7)
+App 238 output: aquired undefined
+App 238 output: aquired undefined
+App 238 output: token af7a3f74e1aebd8a4c2cb5727b78a765
+App 238 output: SELECT * FROM facilities WHERE active = 1 and company_id = 5 and facility_id = '1111'

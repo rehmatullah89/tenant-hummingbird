@@ -1,0 +1,36 @@
+head
+    link(rel='stylesheet', href='/css/invoice.css')
+body
+
+    table(width="100%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#f5f7f8")
+        tbody
+            tr
+                td( height="30")
+            tr
+                td(align="center")
+                    table(align="center" class="table600" width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff")
+                        tbody
+                            tr
+                                td(width="15") &nbsp;
+                                td(height="10")
+                                td(width="15") &nbsp;
+                            tr
+                                td(width="15") &nbsp;
+                                td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:18px; font-weight: bold; line-height:28px;")
+                                    | Maintenance Request ##{Hashes.encode(maintenanceRequest.id)}
+                                td(width="15") &nbsp;
+                            tr
+                                td(width="15") &nbsp;
+                                td(height="10")
+                                td(width="15") &nbsp;
+                            tr
+                                td(width="15") &nbsp;
+                                td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:13px; line-height:28px;")
+                                    | This is a confirmation that we have received your message. Someone will be in contact with you as soon as possible.
+                                td(width="15") &nbsp;
+                            tr(style="border-bottom:1px solid #e2e2e2")
+                                td(width="15") &nbsp;
+                                td(height="10")
+                                td(width="15") &nbsp;
+            tr
+                td( height="100")

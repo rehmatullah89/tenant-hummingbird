@@ -1,0 +1,578 @@
+openapi: '3.0.2'
+info:
+  title: DLPC
+  description: Document Print and Log api's
+  version: '1.0'
+servers:
+  - url: https://api.dummy.tenant.test/v1
+components:
+  schemas:
+    GeneralError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    DocumentBatches:
+      type: object
+      properties:
+        property_id:
+          type: string
+        document_batch_id:
+          type: string
+        template:
+          type: object
+          properties:
+            template_doc_id:
+              type: string
+              description: template id (foreign -> docmanager or pandadoc)
+            name: 
+              type: string
+              description: template name
+            key:
+              type: string
+              description: s3 key
+        document_type:
+          type: string
+          description: document type signifies the batch source(Eg; Rent Raise, Delinquency)
+        created_at:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+        last_downloaded_on:
+          type: string
+          description: last downloaded date in iso string format
+        last_downloaded_by:
+          type: object
+          properties:
+            id:
+              type: string
+              description: contact id
+            first_name:
+              type: string
+            last_name:
+              type: string
+        combined_document:
+          type: object
+          properties:
+            id:
+              type: string
+            url: 
+              type: string
+              description: document_url
+        document_delivery_id:
+          type: string
+          description: document delivery id has to be used to get the doc batch details
+        delivery: 
+          type: object
+          properties:
+            method:
+              type: object
+              properties:
+                id: 
+                  type: string
+                name:
+                  type: string
+                  description: delivery method (eg; Certified Mail, email)
+            mailhouse:
+              type: string
+              description: (delivered by) (eg; Rpost, postmark, Simple Certified)
+        interaction_status_count:
+          type: object
+          properties:
+            sent:
+              type: integer
+              format: int32
+            delivered:
+              type: integer
+              format: int32
+            error:
+              type: integer
+              format: int32
+            resolved:
+              type: integer
+              format: int32
+            in_progress:
+              type: integer
+              format: int32
+            bounced:
+              type: integer
+              format: int32
+            opened:
+              type: integer
+              format: int32
+            clicked:
+              type: integer
+              format: int32
+            spam:
+              type: integer
+              format: int32
+        generation_status_count:
+          type: object
+          properties:
+            completed:
+              type: integer
+              format: int32
+            error:
+              type: integer
+              format: int32
+            pending:
+              type: integer
+              format: int32
+        total_count:
+          type: integer
+          format: int32
+        derived_status:
+          type: string
+          description: derived/calculated status of the batch
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        contact_id:
+          type: string
+        interaction_id:
+          type: string
+        created_at: 
+          type: string
+        last_modified:
+          type: string
+        last_modified_by:
+          type: object
+          properties:
+            id:
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+    UnitContacts:
+      type: object
+      properties:
+        unit: 
+          type: object
+          properties:
+            id: 
+              type: string
+            number:
+              type: integer
+            type:
+              type: string
+        contact: 
+          type: object 
+          properties:
+            id: 
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+            type: 
+              type: string
+    BatchDocument:
+      type: object
+      properties:
+        unit:
+          type: object
+          properties:
+            id:
+              type: string
+            number:
+              type: integer
+            type: 
+              type: string
+              description: unit type
+        contact:
+          type: object
+          properties:
+            id: 
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+            type: 
+              type: string
+              description: contact type
+            email:
+              type: string
+            address:
+              type: object
+              properties:
+                address1:
+                  type: string
+                address2:
+                  type: string
+                city:
+                  type: string
+                state:
+                  type: string
+                zip:
+                  type: string
+        generated_document:
+          type: object
+          properties:
+            id: 
+              type: string
+            url:
+              type: string
+              description: src url of document
+        status:
+          type: string
+        status_details:
+          type: string
+        lease_id:
+          type: string
+        interaction_id:
+          type: string
+        meta:
+          type: object
+          properties:
+            object_id:
+              type: string
+              description: email_id or mail_id
+            tracking_number:
+              type: string
+            acceptance_document_refid:
+              type: string
+            electronic_return_receipt_refid:
+              type: string
+            delivery_document_refid:
+              type: string
+        note_count:
+          type: integer
+    BatchDetails:
+      type: object
+      properties:
+        batch_info:
+          type: object
+          properties:
+            property_id:
+              type: string
+            document_batch_id: 
+              type: string
+            batch_created_at:
+              type: string
+            document_delivery_id:
+              type: string
+            document_type:
+              type: string
+            delivery_method:
+              type: string
+            delivery_type:
+              type: string
+            mailhouse:
+              type: string
+            combined_document:
+              type: object
+              properties:
+                id: 
+                  type: string
+                url: 
+                  type: string 
+            template:
+              type: object
+              properties:
+                id: 
+                  type: string
+                name:
+                  type: string
+        documents:
+          type: array
+          items: 
+            $ref: '#/components/schemas/BatchDocument'
+          
+        
+paths:
+  /companies/{company_id}/document-batches:
+    get:
+      description: gets document batch for a property
+      parameters:
+      - name: company_id
+        in: path
+        description: company_id
+        required: true
+        schema:
+          type: string
+      - name: property_id
+        in: query
+        description: property id
+        required: true
+        schema:
+          type: string
+      - name: delivery_method
+        in: query
+        description: delivery method of the doc batch
+        required: false
+        schema:
+          type: string
+      - name: document_type
+        in: query
+        description: document_type (Rent Raise /Delinquency)
+        required: false
+        schema:
+          type: string
+      - name: template_name
+        in: query
+        description: template name
+        required: false
+        schema:
+          type: string
+      - name: start_date
+        in: query
+        description:  doc batch created filter date
+        required: false
+        schema:
+          type: string
+      - name: end_date
+        in: query
+        description:  doc batch created filter end date
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        description:  page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: count
+        in: query
+        description:  pagination count
+        required: false
+        schema:
+          type: integer
+          format: int32
+
+      responses:
+        '200':
+          description: returns array of document batch per property
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: status code
+                  data:
+                    type: object
+                    properties:
+                      document_batches:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DocumentBatches'
+                        
+  /companies/{company_id}/document-batches/items:
+    get:
+      description: gets document batch details for a batch per property
+      parameters:
+      - name: company_id
+        in: path
+        description: company_id
+        required: true
+        schema:
+          type: string
+      - name: document_batch_id
+        in: query
+        description: document batch id
+        required: true
+        schema:
+          type: string
+      - name: document_delivery_id
+        in: query
+        description: document delivery id for a document batch
+        schema:
+          type: string
+      - name: contact_type
+        in: query
+        description: contact type
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: status
+        schema:
+          type: string
+      - name: unit
+        in: query
+        description: unit number
+        schema:
+          type: string
+      - name: page
+        in: query
+        description:  page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: count
+        in: query
+        description:  pagination count
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: returns batch info and array of documents
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/BatchDetails'
+
+  /companies/{company_id}/notes:
+    get:
+      description: get all notes per context (interactions)
+      parameters:
+        - name: company_id
+          in: path
+          description: company id
+          required: true
+          schema: 
+            type: string
+        - name: context
+          in: query
+          description: query context of notes (eg; interaction)
+          required: true
+          schema:
+            type: string
+        - name: context_id
+          in: query
+          description: id of query context object of notes (eg; interaction_id)
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description:  page number
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: count
+          in: query
+          description:  pagination count
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: returns array of notes per context_id
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: status code 
+                  data:
+                    type: object 
+                    properties:
+                      notes: 
+                        type: array
+                        items: 
+                          $ref: '#/components/schemas/Note'
+    post:
+      description: add notes per context
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                content:
+                  type: string
+                context:
+                  type: string
+                  description: context per which notes are added (eg; interaction)
+                context_id:
+                  type: string
+                  description: reference id of context
+      
+      responses:
+        '200':
+          description: returns the id and referenced context of new note
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  status: 
+                    type: integer
+                    description: status code 
+                  data:
+                    type: object
+                    properties:
+                      note_id:
+                        type: string
+                        description: note id
+                      context:
+                        type: string
+                      context_id:
+                        type: string
+  /companies/{company_id}/document-batches/errors:
+    get:
+      description: get errors per batch
+      parameters:
+        - name: company_id
+          in: path
+          description: company id
+          required: true
+          schema: 
+            type: string
+        - name: document_batch_id
+          in: query
+          description: document batch id
+          required: true
+          schema:
+            type: string
+        - name: document_delivery_id
+          in: query
+          description: document delivery id
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description:  page number
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: count 
+          in: query
+          description:  pagination count
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: returns array of unit contacts which has errors
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: status code 
+                  data:
+                    type: object 
+                    properties:
+                      batch_errors: 
+                        type: array
+                        items: 
+                          $ref: '#/components/schemas/UnitContacts'
+      

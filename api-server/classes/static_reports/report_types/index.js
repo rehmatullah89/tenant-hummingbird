@@ -1,0 +1,25 @@
+
+module.exports = {
+    "account-receivable-aging": require("./account_receivable_aging"),
+    "delinquencies": require("./delinquencies"),
+    "gate-access": require('./gate_access'),
+    "transfer": require("./transfer"),
+    "rental-activity" : require('./rental_activity'),
+    "space-activity": require('./space_activity'),
+    "payments-by-product-type": require('./payment_by_product_type'),
+    "cash-audit": require('./cash_audit'),
+    "applied-credits": require('./applied_credits'),
+    "write-offs": require("./write_offs"),
+    "daily-deposits": require("./daily_deposits"),
+    "financial-summary": require("./financial_summary"),
+    "management-summary": require("./management_summary"),
+    "payment-processing": require("./payment_processing"),
+    "payouts": require("./payouts"),
+    "raw": require("./propay_transaction_raw"),
+    "coverage-details": require("./coverage_details"),
+    "store-kpi": require("./store_kpi"),
+    "sales_commission": require("./sales_commission"),
+    "sales_commission_details": require("./sales_commission_details"),
+    "management-history": require("./management_history"),
+    "manager-activity": require('./manager_activity')
+}

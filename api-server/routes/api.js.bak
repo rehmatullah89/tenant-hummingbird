@@ -1,0 +1,74 @@
+var express = require('express');
+var router = express.Router();
+var moment      = require('moment');
+var settings    = require(__dirname + '/../config/settings.js');
+var control    = require(__dirname + '/../modules/site_control.js');
+var Promise = require('bluebird');
+var response = {};
+var control = require(__dirname + '/../modules/site_control.js');
+
+
+module.exports = function(app) {
+
+
+    /* GET List of properties for a user account. */
+    router.get('/properties', control.validateApiKey, function(req, res, next) {
+        pool.getConnectionAsync().then(function(connection) {
+            var sql = 'Select * from properties where company_id = ' + connection.escape(req.account.company_id);
+            connection.query(sql, function (err, result) {
+                connection.release();
+                if(err) return res.status(500).send(JSON.stringify({msg: 'An error occurred'}));
+                //TODO: Change ids to hash & format response if need be
+                res.status(200).send(JSON.stringify(result));
+            });
+        }).catch(function(err){
+            res.status(500).send(JSON.stringify({msg: err}));
+        });
+    });
+
+    router.get('/property/:id', control.validateApiKey, function(req, res, next) {
+        var property_id = req.params.id;
+
+        var connection = {};
+
+        pool.getConnectionAsync().then(function(conn){
+            connection = conn;
+            var sql = 'Select * from properties where id = ' + connection.escape(property_id) + ' and company_id = ' + connection.escape(req.account.company_id);
+            return connection.queryAsync(sql);
+        }).then(function(result){
+
+            if(!result) {
+                var error =  'Invalid property id.';
+                connection.release();
+                return res.status(500).send(JSON.stringify({msg: error }));
+            }
+
+            var property = JSON.parse(JSON.stringify(result[0]));
+
+            var img_sql = 'Select * from uploads where status = 1 and type = "image" and model = "property" and foreign_id =  ' + property.id + ' order by "order" asc';
+
+            return connection.queryAsync(img_sql);
+
+        }).then(function(result){
+            res.status(200).send(JSON.stringify(result));
+        }).catch(function(err){
+            console.log(err);
+            connection.release();
+            return res.status(500).send(JSON.stringify({msg: err.toString() }));
+
+        });
+           // var conn =  Promise.promisify(connection.query, connection);
+
+    });
+
+
+
+
+    return router;
+};
+
+/*
+    Should be able to:
+    Get a list of properties for company
+    Get a list of units for property
+*/

@@ -1,0 +1,17 @@
+version: '3.5'
+services:
+  api:
+    restart: always
+    container_name: api-server
+    build:
+      dockerfile: Dockerfile.test
+      context: .
+    volumes:
+      - /home/app/hummingbird/node_modules
+      - .:/home/app/hummingbird/
+    env_file:
+      - test.env
+    networks:
+      - hb
+networks:
+  hb:

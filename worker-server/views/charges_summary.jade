@@ -1,0 +1,62 @@
+table(width="100%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#f5f7f8")
+    tbody
+        tr
+            td(align="center")
+                table(align="center" class="table600" width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff")
+                    tbody
+
+                        tr
+                            td(width="15") &nbsp;
+                            td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color: #7f8c8d; font-size:13px; line-height:28px;")
+
+                                table(style="width: 100%; font-size: 12px;")
+                                    tr
+                                        td(height="30" colspan="4")
+                                    tr
+                                        td(width="15")
+                                        td(width="250")
+                                            img(src="http://#{company.subdomain}.#{settings.domain}/img/uploads/company/#{company.logo}" style="width: 150px")
+                                        td(width="250" style="text-align: center; line-height:18px;" )
+                                            h2(style="margin-bottom: 5px;") Summary Of Charges List
+                                            p(style="margin: 5px;")
+                                                | Date: #{ billdate }
+
+                                        td(width="15")
+                                    tr
+                                        td(height="30" colspan="4")
+                                if invoices.length
+                                    each invoice, i in invoices
+                                        - var total = 0;
+                                        table(style="width: 100%;")
+                                            tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; font-weight: bold; line-height:28px; color: white; border: 1px solid #e2e2e2;" bgcolor="#0277bd")
+                                                th(width="15")
+                                                th #{ invoice.Lease.Unit.Address.address} ##{ invoice.Lease.Unit.number} #{ invoice.Lease.Unit.Address.city} #{ invoice.Lease.Unit.Address.state} #{ lease.Unit.Address.zip}
+                                        table(style="width: 100%;")
+                                            if invoice.InvoiceLines.length
+                                                each line, i in invoice.InvoiceLines
+                                                    - bgColor = (i % 2 )? '#f5f7f8': '#ffffff';
+                                                    - total += (parseFloat(line.qty) * parseFloat(line.cost));
+
+                                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2; border-bottom: 1px solid #e2e2e2;" bgcolor="#{bgColor}")
+                                                        td(width="15")
+                                                        td #{line.Product.name}
+                                                        td $#{line.cost}
+                                                        td #{line.qty}
+                                                        td(width="100" style="text-align: right")
+                                                            | $#{(line.qty * line.cost).toFixed(2)}
+                                                        td(width="15")
+                                                tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:white; font-size:11px; font-weight: bold; line-height:28px; border: 1px solid #e2e2e2;" bgcolor="#252a2b")
+                                                    td(width="15")
+                                                    td(colspan="3")
+                                                        strong Total
+                                                    td(width="100" style="text-align: right")
+                                                        strong $#{invoice.total.toFixed(2)}
+                                                    td(width="15")
+                                            else
+                                                tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; font-weight: bold; line-height:28px; color: white; border: 1px solid #e2e2e2;")
+                                                    td(colspan="8") No charges on this lease.
+
+                            td(width="15") &nbsp;
+
+                        tr(bgcolor="#ffffff"  style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px;")
+                            td(colspan="6" height="25")

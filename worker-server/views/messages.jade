@@ -1,0 +1,162 @@
+head
+    link(rel='stylesheet', href='/css/invoice.css')
+body
+
+    table(width="100%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#f5f7f8")
+        tbody
+            tr
+                td( height="30")
+            tr
+                td(align="center")
+                    table(align="center" class="table600" width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff")
+                        tbody
+                            tr
+                                td(width="15") &nbsp;
+                                td(height="10")
+                                td(width="15") &nbsp;
+                            tr
+                                td(width="15") &nbsp;
+                                td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:18px; font-weight: bold; line-height:28px;")
+                                    | Maintenance Request ##{Hashes.encode(maintenanceRequest.id)}
+                                td(width="15") &nbsp;
+
+                            tr
+                                td(width="15") &nbsp;
+                                td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:12px; line-height:28px;")
+                                    if maintenanceRequest.Thread.length > 1
+                                        | Maintenance Request ##{Hashes.encode(maintenanceRequest.id)} has been updated. Please see the message below.
+                                    else
+                                        | Maintenance Request ##{Hashes.encode(maintenanceRequest.id)} has been created. Please see the message below.
+                                td(width="15") &nbsp;
+
+                            tr
+                                td(width="15") &nbsp;
+                                td(height="30")
+                                td(width="15") &nbsp;
+
+
+                            tr
+                                td(width="15") &nbsp;
+                                td
+                                    table(width="100%" border="0" align="left" cellpadding="0" cellspacing="0")
+                                        tbody
+                                            tr
+                                                td(width="250" valign="top" align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#7f8c8d; font-size:12px; line-height:18px;") Status:
+                                                td(width="50")
+                                                td(align="left" valign="top" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:12px; font-weight: normal; line-height:18px; color: #545454; ")
+                                                    - var background = '';
+                                                    case maintenanceRequest.status
+                                                         when 'open'
+                                                            case maintenanceRequest.severity
+                                                                when 'Standard'
+                                                                    - background = '#488FCC';
+                                                                    - statusText = "Open";
+                                                                when 'Urgent'
+                                                                    - background = '#F9A823';
+                                                                    - statusText = maintenanceRequest.severity;
+                                                                when 'Emergency'
+                                                                    - background = '#C62828';
+                                                                    - statusText = maintenanceRequest.severity;
+                                                         when 'resolved'
+                                                                - background = '#41B655';
+                                                                - statusText = 'Resolved';
+                                                         when 'closed'
+                                                                - background = '#ECEFF0';
+                                                                - statusText = 'Closed';
+                                                         when 'onhold'
+                                                                - background = '#F1592B';
+                                                                - statusText = 'On Hold';
+
+                                                    table(class="textbutton" border="0" align="left" cellpadding="0" cellspacing="0" bgcolor="#{background}" style="border-radius:20px;")
+                                                        tbody
+                                                            tr
+                                                                td(height="25" align="center" valign="middle" style="font-family: 'Open Sans', Arial, sans-serif; color:#ffffff; font-size:12px;padding-left: 10px; padding-right: 10px;")
+                                                                    | #{statusText}
+
+
+
+                                            tr
+                                                td
+                                                td(height="15")
+                                                td
+                                            tr
+                                                td(width="250" valign="top" align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#7f8c8d; font-size:12px; line-height:18px;") Created by:
+                                                td(width="50")
+                                                td(align="left" valign="top" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:12px; font-weight: normal; line-height:18px; color: #545454;")
+                                                    | #{maintenanceRequest.Contact.first} #{maintenanceRequest.Contact.last}<br />
+                                                    if maintenanceRequest.Unit && maintenanceRequest.Unit.Address
+                                                        | #{maintenanceRequest.Lease.Unit.Address.address} #{maintenanceRequest.Lease.Unit.number}<br />
+                                                        | #{maintenanceRequest.Lease.Unit.Address.city}, #{maintenanceRequest.Lease.Unit.Address.state} #{maintenanceRequest.Lease.Unit.Address.zip}
+                                            tr
+                                                td
+                                                td(height="15")
+                                                td
+                                            tr
+                                                td(width="250" valign="top" align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#7f8c8d; font-size:12px; line-height:18px;") Created at:
+                                                td(width="50")
+                                                td(align="left" valign="top" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:12px; font-weight: normal; line-height:18px; color: #545454;") #{moment(maintenanceRequest.date).format('M/DD/YY hh:mm A')}
+                                            tr
+                                                td
+                                                td(height="15")
+                                                td
+                                            if maintenanceRequest.extras
+                                                each extra in maintenanceRequest.extras
+                                                    tr
+                                                        td( width="250" valign="top" align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#7f8c8d; font-size:12px; line-height:18px;") #{extra.name}:
+                                                        td(width="50")
+                                                        td(align="left" valign="top" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:12px; font-weight: normal; line-height:18px; color: #545454;") #{extra.value}
+                                                    tr
+                                                        td
+                                                        td(height="15")
+                                                        td
+
+                                td(width="15") &nbsp;
+
+                            tr(style="border-bottom:1px solid #e2e2e2")
+                                td(width="15") &nbsp;
+                                td(height="10")
+                                td(width="15") &nbsp;
+
+                            tr
+                                td(width="15") &nbsp;
+                                td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color: #7f8c8d; font-size:13px; line-height:28px;")
+
+                                    each m in maintenanceRequest.Thread
+                                        table(width="100%" border="0" align="left" cellpadding="0" cellspacing="0")
+                                            tbody
+                                                tr
+                                                    td( height="30")
+                                                tr
+                                                    td(align="left")
+                                                        table(width="100%" border="0" align="left" cellpadding="0" cellspacing="0")
+                                                            tbody
+                                                                tr
+                                                                    td(width="15" align="center" valign="middle" style="line-height:0px;")
+                                                                        img(style="display:block; font-size:0px; line-height:0px; border:0px;" src=settings.config.protocol + '://' + domain + '.' + settings.config.domain + '/static/img/calendar_sm.png' width="15" height="15" alt="icon")
+                                                                    td(width="15")
+                                                                    td(align="left")
+                                                                        table(width="100%" align="left" border="0" cellspacing="0" cellpadding="0")
+                                                                            tbody
+                                                                                tr
+                                                                                    td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#bdc3c7; font-size:13px; font-weight: bold; line-height:28px;")
+                                                                                        |  #{moment(m.date).format('DD MMM YYYY') }
+                                                                    td(width="15")
+                                                                    td(align="left")
+
+                                                tr
+                                                    td( height="10")
+                                                tr
+                                                    td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:12px; font-weight: bold; line-height:28px; color: #545454; ")
+                                                        | #{m.Contact.first} #{m.Contact.last} wrote:
+
+                                                tr
+                                                    td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color:#7f8c8d; font-size:13px; line-height:28px;")
+                                                        | #{m.content}
+                                                tr
+                                                    td( height="30" style="border-bottom:1px dotted #cccccc")
+
+                                td(width="15") &nbsp;
+
+
+            tr
+                td( height="30")

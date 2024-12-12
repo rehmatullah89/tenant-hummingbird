@@ -1,0 +1,6 @@
+const EVENTS = Object.freeze({
+  PAYMENT_PROCESSED: "PAYMENT_PROCESSED",
+  GENERATE_EVENT_EXPORT: "GENERATE_EVENT_EXPORT"
+});
+
+module.exports = EVENTS;

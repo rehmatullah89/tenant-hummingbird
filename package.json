@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "uuid": "^7.0.3",
+    "zipcode-to-timezone": "^0.0.9"
+  }
+}

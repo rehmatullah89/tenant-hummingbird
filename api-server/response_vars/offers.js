@@ -1,0 +1,5 @@
+module.exports = {
+	'/': {
+		get: 'dossier(*),unit_id,price,space_mix_id,value_tier,promotions(*),amenities(*),costs(security_deposit,monthly,start_date,end_date,bill_day,terms,rent,auto_pay_after_billing_date,sensitive_info_stored,Discounts(*),Promotions(name,description,value,type,months,offset,pretax,active),Charges(date,due,discounts,sub_total,total_tax,total_due,balance,Detail(product_id,name,qty,cost,date,start_date,end_date,total_cost,Product(id,name,description,price,taxable,default_type))),ReservationCharges(date,due,discounts,sub_total,total_tax,total_due,balance,Detail(product_id,name,qty,cost,date,start_date,end_date,Product(id,name,description,price,taxable,default_type))),ApplicationCharges(date,due,discounts,sub_total,total_tax,total_due,balance,Detail(product_id,name,qty,cost,date,start_date,end_date,Product(id,name,description,price,taxable,default_type))))',
+	},
+}

@@ -1,0 +1,102 @@
+html
+    head
+        link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u", crossorigin="anonymous")
+        link(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css", rel="stylesheet", integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN", crossorigin="anonymous")
+    body
+        br
+        br
+        .container
+
+            if err
+                .row
+                    .col-xs-12
+                        h3 #{err}
+            else
+                .row
+                    .col-xs-12
+                        h3 Charge Invoice
+                        p #{leasesCount} Remaining to process
+                br
+                br
+                .row
+                    .col-xs-12
+                        strong
+                            | #{lease.Unit.Address.address} #{lease.Unit.number}<br />
+                            | #{lease.Unit.Address.city}, #{lease.Unit.Address.state} #{lease.Unit.Address.zip}<br />
+                            | Lease ##{lease.id}
+                br
+                br
+                .row
+                    .col-xs-12
+                        h4 Invoices
+                        table.table
+                            tr
+                                th Number
+                                th Invoice Amount
+                                th Tax Amount
+                                th Discount
+                                th Payments Applied
+                                th Total To Bill
+                            each invoice, i in lease.Invoices
+                                - var total = invoice.amount + invoice.taxsum - invoice.discounts - invoice.total_paid;
+                                tr
+                                    td #{invoice.number}
+                                    td $#{invoice.amount? invoice.amount.toFixed(2): '0.00'}
+                                    td $#{invoice.taxsum ? invoice.taxsum.toFixed(2): '0.00'}
+                                    td $#{invoice.discounts? invoice.discounts.toFixed(2): '0.00'}
+                                    td $#{invoice.total_paid? invoice.total_paid.toFixed(2): '0.00'}
+                                    td $#{total> 0? total.toFixed(2): "0.00"}
+
+                br
+                br
+                .row
+                    .col-xs-12
+                        h4 Payment Methods
+                        p Payment will be split between the following payment methods
+                        table.table
+                            tr
+                                th Name
+                                th Payment Type
+                                th Type
+                                th Card/Account number
+                            each payMethod, i in lease.PaymentMethods
+                               if payMethod.auto_charge
+                                    tr
+                                        td #{payMethod.name_on_card? payMethod.name_on_card : payMethod.first + ' ' + payMethod.last }
+                                        td #{payMethod.type}
+                                        td #{payMethod.card_type}
+                                        td #{payMethod.card_end}
+                br
+                br
+                .row
+                    .col-xs-12
+                        form(method="POST" action="/pay-invoices")
+                            input(type="hidden" name="lease_id" value="#{lease.id}")
+                            input(type="hidden" name="company_id" value="#{company_id}")
+                            button.btn.btn-primary
+                                i.fa.fa-circle-o-notch.fa-spin.loading(style="display:none;")
+                                | &nbsp;&nbsp;Pay this Account
+
+        script(src="https://code.jquery.com/jquery-2.2.4.min.js", integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=", crossorigin="anonymous")
+
+        script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
+
+        script.
+            $('form').on('submit', function(e){
+                e.preventDefault();
+                $('.msg').remove();
+                $('.loading').show();
+
+                var $form = $(this);
+                $.post($form.prop('action'), $form.serialize(), function(response){
+
+                    if(response.status){
+                        $('.container').prepend('<p style="padding: 15px;" class="msg bg-success text-success">Invoices Processed Successfully</p>')
+                    } else {
+                        $('.container').prepend('<p style="padding: 15px;" class="msg bg-danger text-danger">'+response.msg+'</p>')
+                    }
+                    $('.loading').hide();
+
+                });
+
+            })

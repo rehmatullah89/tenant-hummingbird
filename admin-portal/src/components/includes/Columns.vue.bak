@@ -1,0 +1,223 @@
+<template>
+  <div>
+
+  <div class="form-column-selector-section-container" style="width: 1200px;">
+
+    <div class="form-column-selector-section" v-for="section in sections" :key="section">
+
+      <label class="aside-summary-label">{{section}}</label>
+          <div>
+            <div class="checkbox" v-for="(o, i) in getSectionTypes(section)" :key="o.key">
+              <input
+                type="checkbox"
+                v-model="set_columns"
+                :value="o.key"
+                :id="'checkbox-' + o.key + '-' + i"
+                :name="'checkbox-' + o.key + '-' + i"
+                :data-name="'checkbox-' + o.key + '-' + i"
+                class="w-checkbox-input"
+              />
+              <label
+                :for="'checkbox-' + o.key + '-' + i"
+                class="w-form-label">{{ o.label }}</label>
+            </div>
+          </div>
+
+
+<!--        <span v-show="errors.has(section.key + '_min')" class="status-block error-block field-error">{{ errors.first(section.key + '_min') }}</span>-->
+<!--        <span v-show="errors.has(section.key + '_max')" class="status-block error-block field-error">{{ errors.first(section.key + '_max') }}</span>-->
+
+      </div>
+    </div>
+
+    <div class="form-section">
+      <strong>Group Rows</strong>
+
+      <p>Create summary reports by grouping rows together.</p>
+      <div class="form-row">
+        <label class="label">Group By</label>
+        <div class="form-input-container">
+          <div class="horizontal-form-input">
+
+            <autocomplete
+              :options="unique_structure"
+              labelField="label"
+              v-model="newGroup"
+              @input="addGroup"
+            >
+            </autocomplete>
+          </div>
+        </div>
+      </div>
+      <div class="horizontal-form-row lined-padded" v-for="(g, i) in listGroups">
+
+        <div class="form-input-container">
+          <div class="horizontal-form-input">
+            &nbsp;
+            <span class="icon"></span>
+            &nbsp;
+          </div>
+
+          <div class="horizontal-form-input">
+            {{g.label}}
+          </div>
+          <div class="horizontal-form-input float-right">
+             <button @click="removeGroup(i)" class="close icon"></button>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+
+      <button class="w-button primary-btn btn-sm" @click="setColumns">Set Columns</button>
+      <button class="w-button tertiary-btn btn-sm" @click="$emit('close')">Close</button>
+    </div>
+
+</template>
+
+<script type="text/babel">
+    import MultiSelect from '../assets/MultiSelect.vue';
+    import Dropdown from '../assets/Dropdown.vue';
+    import vueSlider from 'vue-slider-component';
+    import Datepicker from 'vuejs-datepicker';
+    import moment from 'moment';
+    import Autocomplete from "../assets/Autocomplete";
+
+
+    export default {
+        name: "Columns",
+        data() {
+            return {
+                set_groups:[],
+                newGroup:{},
+                form :{},
+                form_loaded: false,
+                source_data:{},
+                slider_configs:{},
+                rentslider:{
+                    width: '100%',
+                    min: 0,
+                    max: 0,
+                    show: true,
+                    tooltip: false
+                },
+                set_columns: [],
+                timeframe_options: ['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'This Month', 'Year To Date', 'All Time', 'Custom Range']
+            }
+        },
+        components:{
+            Autocomplete,
+            MultiSelect,
+            Dropdown,
+            vueSlider,
+            Datepicker
+        },
+        computed: {
+            listGroups(){
+                return this.structure.filter(s => this.set_groups.indexOf(s.key) >= 0);
+            },
+            unique_structure(){
+               return this.structure.filter(s => this.set_groups.indexOf(s.key) < 0 && this.columns.indexOf(s.key) >= 0);
+            },
+            sections(){
+                return [...new Set(this.structure.map(({ group }) => group))]
+            }
+
+
+        },
+        mounted(){
+        },
+
+        created(){
+            this.set_columns = this.columns;
+            this.set_groups = this.groups;
+            console.log("GROUPS", this.groups);
+            this.$nextTick(() => {
+                this.form_loaded = true;
+            })
+        },
+        destroyed(){
+
+        },
+        filters:{
+
+        },
+        props: ['structure', 'columns', 'groups'],
+        methods:{
+            addGroup(){
+              this.set_groups.push(this.newGroup.key);
+              this.newGroup = {};
+            },
+            removeGroup(index){
+              this.set_groups.splice(index, 1);
+            },
+            getSectionTypes(type){
+              return this.structure.filter(s => s.group === type);
+            },
+            setColumns(){
+                let data = {
+                    columns: this.set_columns,
+                    groups: this.set_groups
+                }
+                console.log("data", data);
+
+                this.$emit('setColumns',  data);
+            }
+        },
+        watch:{
+
+            "filters.columns": {
+                handler: function (columns) {
+                    this.set_columns = columns;
+
+                },
+                deep: true
+            },
+
+            filter_data: {
+                handler: function () {
+                    this.source_data = this.filter_data;
+
+                },
+                deep: true
+            }
+        }
+
+
+
+
+    }
+
+</script>
+
+<style scoped>
+
+  .form-column-selector-section-container{
+    display: flex;
+    overflow-x: scroll;
+
+  }
+  .form-column-selector-section{
+    padding: 10px;
+    border-right: 1px solid #e2e2e2;
+    flex: 1 0 200px;
+  }
+
+  .form-column-selector-section:last-child{
+    border: none;
+  }
+  .main-section-heading label{
+    margin-bottom: 3px;
+  }
+
+
+  .lined-padded{
+    width: 300px;
+    padding: 12px 8px;
+    border: 1px solid #e2e2e2;
+    box-shadow: 1px 1px 3px 0px #dee5e7;
+    margin: 5px 0;
+  }
+</style>

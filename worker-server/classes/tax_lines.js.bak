@@ -1,0 +1,159 @@
+"use strict";
+
+var models  = require(__dirname + '/../models');
+var settings    = require(__dirname + '/../config/settings.js');
+
+var Promise = require('bluebird');
+var QB = require('node-quickbooks');
+var validator = require('validator');
+
+/*
+    This class takes an InvoiceLine in the constructor as generates the applicable taxes for it.
+
+    The InvoiceLine object should include Product data from the findProduct method of the InvoiceLines class.
+
+    In the future we will generate from the Tax Authority, but for now, we take taxable amount from settings.
+*/
+
+class TaxLines {
+
+    constructor(InvoiceLine){
+        var _this = this;
+        this.InvoiceLine = InvoiceLine;
+        this.taxlines = [];
+        this.qboPromise = {};
+        this.msg = '';
+        this.company_id;
+
+        return this;
+    }
+
+    make(connection, company_id){
+        var _this = this;
+
+        if(!_this.InvoiceLine.Product){
+            _this.msg = "Product not set";
+            return false;
+        }
+
+        // if product is not taxable, there is nothing to do
+        if(!_this.InvoiceLine.Product.taxable) return true;
+
+        _this.company_id = company_id;
+        
+        // Find company tax Rate
+
+        return Promise.all([
+            models.Setting.findCompanySetting(connection, 'taxRate', _this.company_id),
+            models.Setting.findCompanySetting(connection, 'qbTaxCode', _this.company_id)
+        ]).spread(function(taxRate, qbTaxCode){
+
+            console.log("_this.company_id", _this.company_id);
+            console.log("TaxRate", taxRate);
+
+            console.log(qbTaxCode);
+
+            if(!taxRate) {
+                _this.taxRate = 100;
+            } else {
+                _this.taxRate = taxRate.value;
+            }
+
+            var qbTaxCodeVal = 0;
+            if(qbTaxCode) {
+                qbTaxCodeVal =  qbTaxCode.value
+            }
+
+            //if(!taxRate) throw new Error('Tax rate Not Set. Could not create invoice');
+            var lineTotal = _this.InvoiceLine.cost * _this.InvoiceLine.qty;
+
+            // Todo Test calcualtion of tax amounts
+            _this.taxlines.push(new TaxLine({
+                invoice_line_id: _this.InvoiceLine.id,
+                tax_authority_id: null,
+                qb_tax_code: qbTaxCode,
+                taxrate: _this.taxRate,
+                amount: ( lineTotal * (_this.taxRate / 100)).toFixed(2)
+            }));
+
+            return true;
+
+        }).catch(function(err){
+            console.log(err);
+            console.log(err.stack);
+            _this.msg = err.toString();
+            return false;
+        })
+    };
+
+}
+
+
+module.exports = TaxLines;
+
+
+
+class TaxLine {
+
+    constructor(data){
+
+        var _this = this;
+        this.id = data.id || null;
+        this.invoice_line_id = data.invoice_line_id || null;
+        this.tax_authority_id = data.tax_authority_id || null;
+        this.taxrate = data.taxrate || null;
+        // this.amount = data.amount || null;
+
+        this.qboPromise = {};
+        this.msg = '';
+
+        return this;
+    }
+
+    validate(){
+        var _this = this;
+
+        try{
+            if(!_this.invoice_line_id) throw "Missing invoiceline id";
+            if(!_this.taxrate) throw "Missing taxrate";
+            return true;
+        }catch(err){
+            _this.msg = err.toString();
+            return false
+        }
+    }
+
+    save(connection){
+        var _this = this;
+
+
+        return Promise.resolve().then(function(){
+
+            if(!_this.validate()) return false;
+
+            var toSave = {
+                invoice_line_id: _this.invoice_line_id,
+                tax_authority_id: _this.tax_authority_id,
+                taxrate: _this.taxrate,
+//                amount: _this.amount
+            };
+
+            return models.TaxLine.save(connection, toSave, _this.id ).then(function(result){
+                if(result.insertId) _this.id = result.insertId;
+                return true;
+            })
+        }).then(function(res){
+
+            if(!res) throw _this.msg;
+            return true;
+
+        }).catch(function(err){
+            console.log(err);
+            _this.msg = err.toString();
+            return false;
+        })
+
+
+
+    }
+}

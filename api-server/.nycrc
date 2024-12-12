@@ -1,0 +1,15 @@
+{
+    "exclude": [
+        "**/spec/**",
+        "**/models/**",
+        "**/response_vars/**",
+        "**/validation/**",
+        "**/classes/reports/report_fields/**"
+    ],
+    "reporter": ["json-summary", "text-summary", "html", "cobertura"],
+    "statements": 0,
+    "lines": 0,
+    "functions": 0,
+    "branches": 0,
+    "excludeAfterRemap": true
+}

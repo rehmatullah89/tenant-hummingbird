@@ -1,0 +1,112 @@
+table(width="100%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#f5f7f8")
+    tbody
+        tr
+            td(align="center")
+                table(align="center" class="table600" width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff")
+                    tbody
+
+                        tr
+                            td(width="15") &nbsp;
+                            td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color: #7f8c8d; font-size:13px; line-height:28px;")
+
+                                table(style="width: 100%; font-size: 12px;")
+                                    tr
+                                        td(height="30" colspan="4")
+                                    tr
+                                        td(width="15")
+                                        td(width="250")
+                                            | !{company.getLogoPath()}
+                                        td(width="250" style="text-align: center; line-height:18px;" )
+                                            h2(style="margin-bottom: 5px;") Master Invoice List
+                                            p(style="margin: 5px;")
+                                                | Date: #{ moment(billdate).format('MM/DD/YY') }
+                                        td(width="15")
+                                    tr
+                                        td(height="30" colspan="4")
+                                table(style="width: 100%;")
+                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; font-weight: bold; line-height:28px; color: white; border: 1px solid #e2e2e2;" bgcolor="#0277bd")
+                                        th(width="15")
+                                        th Details
+                                        th(style="text-align: right") Rent
+                                        th(style="text-align: right") Other
+                                        th(style="text-align: right") Tax
+                                        th(style="text-align: right") Discounts
+                                        //th Discounts
+                                        th(style="text-align: right") Total
+                                        th(width="15")
+                                    each invoice, i in invoices
+                                        if invoice
+                                            - bgColor = (i % 2 )? '#f5f7f8': '#ffffff';
+                                            - total = 0;
+                                            - charges = 0;
+                                            - discounts = 0;
+                                            - rent = 0;
+                                            - other = 0;
+                                            if typeof invoice.InvoiceLines != "undefined" && invoice.InvoiceLines && invoice.InvoiceLines.length
+                                                each line, l in invoice.InvoiceLines
+                                                    if(line.Product.default_type == 'rent')
+                                                        - rent = Math.round((line.qty * line.cost) * 100) / 100;
+                                                    else
+                                                        - other += Math.round((line.qty * line.cost) * 100) / 100;
+
+                                                - discounts =   invoice.discounts;
+                                                - total = charges - discounts;
+
+                                                tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2; border-bottom: 1px solid #e2e2e2;" bgcolor="#{bgColor}")
+                                                    td(width="15")
+                                                    td(width="150")
+                                                        | #{ moment(invoice.Lease.start_date).format('MM/DD/YY') } -
+                                                        | #{ invoice.Lease.end_date ? moment(invoice.Lease.end_date).format('MM/DD/YY') : ' ongoing' }<br />
+                                                        | #{ invoice.Lease.Unit.Address.address} ##{ invoice.Lease.Unit.number}<br />
+                                                        | #{ invoice.Lease.Unit.Address.city} #{ invoice.Lease.Unit.Address.state} #{ invoice.Lease.Unit.Address.zip}
+                                                    td( style="text-align: right") $#{ rent.toFixed(2) }
+                                                    td( style="text-align: right") $#{ other.toFixed(2) }
+                                                    td( style="text-align: right") $#{ invoice.total_tax.toFixed(2) }
+                                                    td(style="text-align: right") $#{ invoice.discounts.toFixed(2) }
+                                                    td(style="text-align: right") $#{ invoice.balance.toFixed(2) }
+                                                    td(width="15")
+
+                                                if(invoice.totalPayments > 0)
+                                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-bottom: 1px solid #e2e2e2;" bgcolor="#{bgColor}")
+                                                        td(width="15")
+                                                        td(colspan="5") Total Payments Applied
+                                                        td( style="text-align: right") ($#{invoice.totalPayments.toFixed(2) })
+                                                        td(width="15")
+                                                if(invoice.PaymentsToApply.length)
+                                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-bottom: 1px solid #e2e2e2;" bgcolor="#{bgColor}")
+                                                        td(width="15")
+                                                        td(colspan="5") Existing payments that will be applied
+                                                        td( style="text-align: right") ($#{invoice.PaymentsToApply.reduce(function (a, b) { return a + b.amount}, 0).toFixed(2) })
+                                                        td(width="15")
+                                                tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-bottom: 1px solid #e2e2e2;" bgcolor="#{bgColor}")
+                                                    td(width="15")
+                                                    td Auto payments
+                                                    td(style="text-align: right") Share of Rent
+                                                    td(style="text-align: right") Share of Other
+                                                    td(style="text-align: right" colspan="2")
+                                                    td(style="text-align: right") Share of Due
+                                                    td(width="15")
+                                                each paymentMethod, t in invoice.Lease.PaymentMethods
+                                                    if(paymentMethod.auto_charge && paymentMethod.active)
+                                                        tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px;" bgcolor="#{bgColor}")
+                                                            td(width="15")
+                                                            td #{paymentMethod.first} #{paymentMethod.last}
+                                                            td(style="text-align: right") $#{paymentMethod.rent_total.toFixed(2)}
+                                                            td(style="text-align: right") $#{paymentMethod.utilities_total.toFixed(2)}
+                                                            td(style="text-align: right" colspan="2")
+                                                            td(style="text-align: right") $#{paymentMethod.total.toFixed(2)}
+                                                            td(width="15")
+                                                if(invoice.Lease.PaymentMethods.filter(function(pm){ return pm.active && pm.auto_charge}).length)
+                                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2;" bgcolor="#{bgColor}")
+                                                        td(width="15")
+                                                        td TOTAL to be collected
+                                                        td(colspan="5" style="text-align: right") $#{invoice.Lease.PaymentMethods.reduce(function(a,b) { return (b.auto_charge && b.active)? a + b.total: a }, 0).toFixed(2) }
+                                                        td(width="15")
+
+                            td(width="15") &nbsp;
+
+
+
+
+                        tr(bgcolor="#ffffff"  style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px;")
+                            td(colspan="6" height="25")

@@ -1,0 +1,7 @@
+{
+	"app_type": "node",
+	"startup_file": "app.js",
+	"environment": "development",
+  	"log_file": "passenger3000.log",
+	"port": 80
+}

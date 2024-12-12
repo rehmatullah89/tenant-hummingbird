@@ -1,0 +1,44 @@
+# Default values for worker-server.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 8
+
+image:
+  repository: 380246911330.dkr.ecr.us-east-1.amazonaws.com/hummingbird-worker-server
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: 
+        - name: docker-gitlab-registry
+nameOverride: ""
+fullnameOverride: ""
+
+tol: 
+ tolerations:
+      - key: node-apps
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+nodeSelector:
+        kops.k8s.io/instancegroup: hummingbird-nodes
+
+volumeMounts:
+            name: pfx-volume
+            mountPath: /certs
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  # targetMemoryUtilizationPercentage: 80
+

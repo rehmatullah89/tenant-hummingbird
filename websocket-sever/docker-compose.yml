@@ -1,0 +1,15 @@
+version: '3'
+services:
+  api:
+    restart: 'always'
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./api
+    volumes:
+      - /home/app/hummingbird/node_modules
+      - ./api:/home/app/hummingbird
+    env_file:
+      - env_dev.env
+    ports:
+      - '8081:8081'
+      - '9222:9229'

@@ -1,0 +1,167 @@
+.confirm-row{
+    background: #fff;
+    padding: 10px;
+    border-bottom: 1px solid #e2e2e2;
+    text-align: right;
+    right:0;
+    left:0;
+    z-index: 1000;
+    top: 0;
+
+}
+
+html {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    width: 100%;
+    height: 100%;
+}
+
+*:after, *:before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+#document h1, #document h2, #document h3, #document h4, #document h5, #document h6 {
+    font-family: inherit;
+    font-weight: 500;
+}
+
+#document h1{
+    font-size: 36px;
+    color: #cccccc;
+    padding: 0;
+}
+
+#document h2 {
+    font-weight: 600;
+    color: #0277BD;
+    font-size: 18px;
+    padding-bottom: 20px;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding-top: 0;
+    line-height: 24px;
+}
+#document .content .initials{
+    font-weight: 800;
+    position: relative;
+    overflow: visible;
+}
+
+#document .document-header {
+    margin-bottom: 33px;
+}
+
+#document {
+    width: 100%;
+    padding-bottom: 50px;
+    position: relative;
+    padding-top: 40px;
+}
+#document .content {
+    display: block;
+    width: 80%;
+    height: auto;
+    border:1px solid #e2e2e2;
+    margin: 50px auto;
+    -webkit-box-shadow: 3px 3px 15px #ccc;
+    -moz-box-shadow: 3px 3px 15px #ccc;
+    box-shadow: 3px 3px 15px #ccc;
+    background-color: #ffffff;
+    line-height: 22px;
+    font-size: 13px;
+    font-family: "Open sans", sans-serif;
+}
+
+#document .content.__measuring {
+    height: auto;
+}
+
+#document h1{
+    padding: 25px 5px;
+    margin: 0 0 0 0;
+    float: right;
+    text-transform: uppercase;
+}
+
+
+#document img.logo {
+    height: 100px;
+    float: left;
+}
+
+#document #pad-holder2{
+    width: 300px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow:  1px 1px 8px #ccc;
+    padding: 8px 8px;
+}
+#document #pad-holder{
+    box-shadow:  1px 1px 8px #ccc;
+    padding: 8px 8px;
+    margin-bottom: 20px;
+
+}
+#document .sig-holder{
+    display: inline-block;
+    position: relative;
+}
+#document .sig{
+    position: absolute;
+    width: 96px;
+    height: 60px;
+    top: -20px;
+    right: 0;
+}
+#document .sig img{
+    max-width:100%;
+    max-height:100%;
+}
+
+#document canvas#signing-pad2{
+    display: block;
+    box-shadow: inset 0px 0px 6px #e2e2e2;
+    background-color: #ffffff;
+    width: 100%;
+    border-radius: 1px;
+    cursor: pointer;
+}
+
+
+#document canvas#signing-pad {
+    display: block;
+    box-shadow: inset 0px 0px 6px #e2e2e2;
+    background-color: #ffffff;
+    width: 100%;
+    border-radius: 1px;
+    cursor: pointer;
+    background: url(/public/img/signatureline.svg) 50% 50% no-repeat;
+    background-size: contain;
+}
+
+.Signature-holder .sign-here,
+span.trigger-field.Signature{
+
+}
+
+.Initials-holder .sign-here,
+span.trigger-field.border.Initials {
+
+}
+
+
+.group:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+@media (max-width: 600px) {
+    #document .content {
+        width: 100%;
+    }
+}

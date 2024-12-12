@@ -1,0 +1,1287 @@
+[ N 2020-01-20 00:47:36.9280 195/T1 age/Wat/WatchdogMain.cpp:1373 ]: Starting Passenger watchdog...
+[ N 2020-01-20 00:47:36.9486 198/T1 age/Cor/CoreMain.cpp:1340 ]: Starting Passenger core...
+[ N 2020-01-20 00:47:36.9492 198/T1 age/Cor/CoreMain.cpp:256 ]: Passenger core running in multi-application mode.
+[ N 2020-01-20 00:47:36.9626 198/T1 age/Cor/CoreMain.cpp:1015 ]: Passenger core online, PID 198
+[ N 2020-01-20 00:47:39.8465 198/T5 age/Cor/SecurityUpdateChecker.h:519 ]: Security update check: no update found (next check in 24 hours)
+App 241 output: [[00:47:42.122]] [LOG]    
+App 241 output: 00:47:42
+App 241 output: [[00:47:42.125]] [LOG]    
+App 241 output: 30 55 23 * * *
+App 241 output: [[00:47:42.133]] [LOG]    
+App 241 output: 0 10 5 * * *
+App 241 output: [[00:47:42.135]] [LOG]    
+App 241 output: 0 20 8 * * *
+App 241 output: [[00:47:42.136]] [LOG]    
+App 241 output: 0 30 6 * * *
+App 241 output: [[00:47:42.793]] [LOG]    
+App 241 output: Attempting to start
+App 241 output: [[00:47:42.797]] [LOG]    
+App 241 output: up and running
+App 241 output: [[00:47:42.799]] [ERROR]  
+App 241 output: (node:241) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 job ttl exceeded listeners added. Use emitter.setMaxListeners() to increase limit
+App 241 output: [0mHEAD / [33m404 [0m5.554 ms - 14[0m
+App 241 output: [[00:47:42.853]] [LOG]    
+App 241 output: SELECT * FROM events where id =  27
+App 241 output: [[00:47:42.854]] [LOG]    
+App 241 output: DTA RowDataPacket {
+App 241 output:   id: 27,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-10-24 21:12:00',
+App 241 output:   end_date: '2019-10-24 21:12:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-10-09 20:23:28',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.859]] [LOG]    SELECT * FROM events where id =  31
+App 241 output: [[00:47:42.861]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 31,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '111',
+App 241 output:   start_date: '2019-10-30 08:11:00',
+App 241 output:   end_date: '2019-10-30 08:11:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-10-17 17:32:12',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.862]] [LOG]    SELECT * FROM events where id =  36
+App 241 output: [[00:47:42.863]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 36,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 1010,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'This is just a test',
+App 241 output:   start_date: '2019-11-01 13:28:52',
+App 241 output:   end_date: '2019-11-01 13:28:52',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-10-18 04:11:47',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.864]] [LOG]    SELECT * FROM events where id =  119
+App 241 output: [[00:47:42.865]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 119,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 1010,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-10-26 00:00:00',
+App 241 output:   end_date: '2019-10-26 00:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-10-29 15:11:47',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.865]] [LOG]    SELECT * FROM events where id =  132
+App 241 output: [[00:47:42.866]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 132,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 1010,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'Reminder',
+App 241 output:   start_date: '2019-10-30 20:00:00',
+App 241 output:   end_date: '2019-10-30 20:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-10-30 15:12:21',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.867]] [LOG]    SELECT * FROM events where id =  136
+App 241 output: [[00:47:42.868]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 136,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 1010,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'Follow up and ask them if they have a preference',
+App 241 output:   start_date: '2019-11-01 07:50:00',
+App 241 output:   end_date: '2019-11-01 07:50:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-10-30 15:48:10',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.869]] [LOG]    SELECT * FROM events where id =  137
+App 241 output: [[00:47:42.870]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 137,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 1010,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details:
+App 241 output:    'Follow up with Someone New about the stuff they asked about',
+App 241 output:   start_date: '2019-11-07 01:00:00',
+App 241 output:   end_date: '2019-11-07 01:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-10-30 15:52:14',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.871]] [LOG]    SELECT * FROM events where id =  197
+App 241 output: [[00:47:42.872]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 197,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-01 18:00:00',
+App 241 output:   end_date: '2019-11-01 18:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-01 18:37:59',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.872]] [LOG]    SELECT * FROM events where id =  198
+App 241 output: [[00:47:42.874]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 198,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-01 18:40:00',
+App 241 output:   end_date: '2019-11-01 18:40:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-01 18:39:18',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.874]] [LOG]    SELECT * FROM events where id =  199
+App 241 output: [[00:47:42.875]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 199,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-01 18:42:00',
+App 241 output:   end_date: '2019-11-01 18:42:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-01 18:39:31',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.876]] [LOG]    SELECT * FROM events where id =  200
+App 241 output: [[00:47:42.878]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 200,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-01 18:43:00',
+App 241 output:   end_date: '2019-11-01 18:43:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-01 18:42:50',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.878]] [LOG]    SELECT * FROM events where id =  201
+App 241 output: [[00:47:42.879]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 201,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-01 19:00:00',
+App 241 output:   end_date: '2019-11-01 19:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-01 18:46:18',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.880]] [LOG]    SELECT * FROM events where id =  206
+App 241 output: [[00:47:42.881]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 206,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-05 00:00:00',
+App 241 output:   end_date: '2019-11-05 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-05 05:10:04',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_34' }
+App 241 output: [[00:47:42.882]] [LOG]    SELECT * FROM events where id =  207
+App 241 output: [[00:47:42.883]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 207,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-04 22:01:00',
+App 241 output:   end_date: '2019-11-04 22:01:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-05 16:52:33',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.883]] [LOG]    SELECT * FROM events where id =  208
+App 241 output: [[00:47:42.884]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 208,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-03 22:01:00',
+App 241 output:   end_date: '2019-11-03 22:01:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-05 16:52:58',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.885]] [LOG]    SELECT * FROM events where id =  209
+App 241 output: [[00:47:42.886]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 209,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-04 22:01:00',
+App 241 output:   end_date: '2019-11-04 22:01:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-05 16:59:53',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.887]] [LOG]    SELECT * FROM events where id =  211
+App 241 output: [[00:47:42.887]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 211,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: 3308,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-06 00:00:00',
+App 241 output:   end_date: '2019-11-06 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-06 05:10:37',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_21' }
+App 241 output: [[00:47:42.888]] [LOG]    SELECT * FROM events where id =  212
+App 241 output: [[00:47:42.889]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 212,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-07 07:10:00',
+App 241 output:   end_date: '2019-11-07 07:10:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-07 16:39:26',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.890]] [LOG]    SELECT * FROM events where id =  213
+App 241 output: [[00:47:42.891]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 213,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-07 07:00:00',
+App 241 output:   end_date: '2019-11-07 07:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-07 16:41:26',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.891]] [LOG]    SELECT * FROM events where id =  214
+App 241 output: [[00:47:42.892]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 214,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-06 07:00:00',
+App 241 output:   end_date: '2019-11-06 07:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-07 16:41:36',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.893]] [LOG]    SELECT * FROM events where id =  215
+App 241 output: [[00:47:42.893]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 215,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-08 19:56:26',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.894]] [LOG]    SELECT * FROM events where id =  216
+App 241 output: [[00:47:42.895]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 216,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-08 19:56:44',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.895]] [LOG]    SELECT * FROM events where id =  217
+App 241 output: [[00:47:42.896]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 217,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-13 20:00:00',
+App 241 output:   end_date: '2019-11-13 20:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-08 19:56:54',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.897]] [LOG]    SELECT * FROM events where id =  218
+App 241 output: [[00:47:42.898]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 218,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0010-09-30 20:53:08',
+App 241 output:   end_date: '0010-09-30 20:53:08',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-09 10:09:47',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.899]] [LOG]    SELECT * FROM events where id =  219
+App 241 output: [[00:47:42.900]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 219,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-29 21:00:00',
+App 241 output:   end_date: '2019-11-29 21:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-09 10:09:55',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.901]] [LOG]    SELECT * FROM events where id =  228
+App 241 output: [[00:47:42.902]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 228,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-10 00:00:00',
+App 241 output:   end_date: '2019-11-10 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-10 05:12:40',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_34' }
+App 241 output: [[00:47:42.903]] [LOG]    SELECT * FROM events where id =  247
+App 241 output: [[00:47:42.904]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 247,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-15 20:00:00',
+App 241 output:   end_date: '2019-11-15 20:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-16 00:07:30',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.904]] [LOG]    SELECT * FROM events where id =  248
+App 241 output: [[00:47:42.906]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 248,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-15 20:00:00',
+App 241 output:   end_date: '2019-11-15 20:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-16 00:08:32',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.906]] [LOG]    SELECT * FROM events where id =  249
+App 241 output: [[00:47:42.908]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 249,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-15 20:00:00',
+App 241 output:   end_date: '2019-11-15 20:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-16 00:08:42',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.908]] [LOG]    SELECT * FROM events where id =  253
+App 241 output: [[00:47:42.910]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 253,
+App 241 output:   company_id: 19,
+App 241 output:   created_by: 6138,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-19 20:34:00',
+App 241 output:   end_date: '2019-11-19 20:34:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-18 20:37:01',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.910]] [LOG]    SELECT * FROM events where id =  254
+App 241 output: [[00:47:42.912]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 254,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-18 22:56:02',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.912]] [LOG]    SELECT * FROM events where id =  255
+App 241 output: [[00:47:42.913]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 255,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-18 22:56:17',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.914]] [LOG]    SELECT * FROM events where id =  256
+App 241 output: [[00:47:42.918]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 256,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-18 21:00:00',
+App 241 output:   end_date: '2019-11-18 21:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-19 18:37:26',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.918]] [LOG]    SELECT * FROM events where id =  257
+App 241 output: [[00:47:42.919]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 257,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-18 21:00:00',
+App 241 output:   end_date: '2019-11-18 21:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-19 18:37:32',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.920]] [LOG]    SELECT * FROM events where id =  258
+App 241 output: [[00:47:42.921]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 258,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-18 21:00:00',
+App 241 output:   end_date: '2019-11-18 21:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-19 18:37:48',
+App 241 output:   type: 'todo',
+App 241 output:  
+App 241 output:  group_id: null }
+App 241 output: [[00:47:42.922]] [LOG]    SELECT * FROM events where id =  259
+App 241 output: [[00:47:42.923]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 259,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2152,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-18 21:00:00',
+App 241 output:   end_date: '2019-11-18 21:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-19 18:37:56',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.924]] [LOG]    SELECT * FROM events where id =  260
+App 241 output: [[00:47:42.925]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 260,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-21 20:00:00',
+App 241 output:   end_date: '2019-11-21 20:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-20 18:02:44',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.925]] [LOG]    SELECT * FROM events where id =  261
+App 241 output: [[00:47:42.926]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 261,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-20 20:00:00',
+App 241 output:   end_date: '2019-11-20 20:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-20 18:21:44',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.926]] [LOG]    SELECT * FROM events where id =  282
+App 241 output: [[00:47:42.927]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 282,
+App 241 output:   company_id: 18,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-23 00:00:00',
+App 241 output:   end_date: '2019-11-23 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-23 04:20:50',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_39' }
+App 241 output: [[00:47:42.928]] [LOG]    SELECT * FROM events where id =  283
+App 241 output: [[00:47:42.929]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 283,
+App 241 output:   company_id: 18,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-23 00:00:00',
+App 241 output:   end_date: '2019-11-23 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-23 04:25:03',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_39' }
+App 241 output: [[00:47:42.929]] [LOG]    SELECT * FROM events where id =  284
+App 241 output: [[00:47:42.930]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 284,
+App 241 output:   company_id: 18,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-23 00:00:00',
+App 241 output:   end_date: '2019-11-23 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-23 04:27:59',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_39' }
+App 241 output: [[00:47:42.931]] [LOG]    SELECT * FROM events where id =  285
+App 241 output: [[00:47:42.932]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 285,
+App 241 output:   company_id: 18,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-23 00:00:00',
+App 241 output:   end_date: '2019-11-23 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-23 04:29:38',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_39' }
+App 241 output: [[00:47:42.932]] [LOG]    SELECT * FROM events where id =  287
+App 241 output: [[00:47:42.934]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 287,
+App 241 output:   company_id: 18,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-23 00:00:00',
+App 241 output:   end_date: '2019-11-23 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-23 05:10:26',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_39' }
+App 241 output: [[00:47:42.934]] [LOG]    SELECT * FROM events where id =  288
+App 241 output: [[00:47:42.935]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 288,
+App 241 output:   company_id: 18,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-23 00:00:00',
+App 241 output:   end_date: '2019-11-23 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-23 06:17:42',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_39' }
+App 241 output: [[00:47:42.936]] [LOG]    SELECT * FROM events where id =  289
+App 241 output: [[00:47:42.937]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 289,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: 3343,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-25 00:00:00',
+App 241 output:   end_date: '2019-11-25 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 12:40:29',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_21' }
+App 241 output: [[00:47:42.937]] [LOG]    SELECT * FROM events where id =  291
+App 241 output: [[00:47:42.938]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 291,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: 3345,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-25 00:00:00',
+App 241 output:   end_date: '2019-11-25 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 12:43:31',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_21' }
+App 241 output: [[00:47:42.939]] [LOG]    SELECT * FROM events where id =  294
+App 241 output: [[00:47:42.939]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 294,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: 3348,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-25 00:00:00',
+App 241 output:   end_date: '2019-11-25 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 12:59:55',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_21' }
+App 241 output: [[00:47:42.940]] [LOG]    SELECT * FROM events where id =  296
+App 241 output: [[00:47:42.941]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 296,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: 3350,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-25 00:00:00',
+App 241 output:   end_date: '2019-11-25 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 13:02:00',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_21' }
+App 241 output: [[00:47:42.941]] [LOG]    SELECT * FROM events where id =  297
+App 241 output: [[00:47:42.942]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 297,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: null,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: 3351,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Late',
+App 241 output:   details: 'This event was autogenerated from a trigger.',
+App 241 output:   start_date: '2019-11-25 00:00:00',
+App 241 output:   end_date: '2019-11-25 23:59:59',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 13:04:10',
+App 241 output:   type: 'Late',
+App 241 output:   group_id: 'TGR_21' }
+App 241 output: [[00:47:42.942]] [LOG]    SELECT * FROM events where id =  298
+App 241 output: [[00:47:42.944]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 298,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-27 11:00:00',
+App 241 output:   end_date: '2019-11-27 11:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 23:40:18',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.944]] [LOG]    SELECT * FROM events where id =  299
+App 241 output: [[00:47:42.945]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 299,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 23:41:58',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.946]] [LOG]    SELECT * FROM events where id =  300
+App 241 output: [[00:47:42.947]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 300,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 23:42:01',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.947]] [LOG]    SELECT * FROM events where id =  301
+App 241 output: [[00:47:42.949]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 301,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 
+App 241 output: 23:44:24',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.950]] [LOG]    SELECT * FROM events where id =  302
+App 241 output: [[00:47:42.951]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 302,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 23:45:29',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.952]] [LOG]    SELECT * FROM events where id =  303
+App 241 output: [[00:47:42.970]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 303,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '0000-01-01 07:52:58',
+App 241 output:   end_date: '0000-01-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-25 23:46:09',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.970]] [LOG]    SELECT * FROM events where id =  304
+App 241 output: [[00:47:42.971]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 304,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-27 20:13:00',
+App 241 output:   end_date: '2019-11-27 20:13:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-26 00:18:18',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.972]] [LOG]    SELECT * FROM events where id =  305
+App 241 output: [[00:47:42.973]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 305,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-26 20:13:00',
+App 241 output:   end_date: '2019-11-26 20:13:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-26 00:18:48',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.973]] [LOG]    SELECT * FROM events where id =  306
+App 241 output: [[00:47:42.974]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 306,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-26 20:00:00',
+App 241 output:   end_date: '2019-11-26 20:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-26 00:26:08',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.975]] [LOG]    SELECT * FROM events where id =  307
+App 241 output: [[00:47:42.975]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 307,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-26 20:23:00',
+App 241 output:   end_date: '2019-11-26 20:23:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-26 00:27:43',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.976]] [LOG]    SELECT * FROM events where id =  308
+App 241 output: [[00:47:42.977]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 308,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-26 11:03:00',
+App 241 output:   end_date: '2019-11-26 11:03:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-26 00:34:19',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.977]] [LOG]    SELECT * FROM events where id =  309
+App 241 output: [[00:47:42.978]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 309,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-26 11:03:00',
+App 241 output:   end_date: '2019-11-26 11:03:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-26 00:34:38',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.978]] [LOG]    SELECT * FROM events where id =  310
+App 241 output: [[00:47:42.979]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 310,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-11-28 11:03:00',
+App 241 output:   end_date: '2019-11-28 11:03:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-26 00:35:23',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.980]] [LOG]    SELECT * FROM events where id =  311
+App 241 output: [[00:47:42.981]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 311,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'nyss',
+App 241 output:   start_date: '2019-11-28 16:00:00',
+App 241 output:   end_date: '2019-11-28 16:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-11-27 22:50:15',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.981]] [LOG]    SELECT * FROM events where id =  312
+App 241 output: [[00:47:42.982]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 312,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-12-03 10:02:00',
+App 241 output:   end_date: '2019-12-03 10:02:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-12-02 20:19:41',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.982]] [LOG]    SELECT * FROM events where id =  313
+App 241 output: [[00:47:42.983]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 313,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-12-04 10:02:00',
+App 241 output:   end_date: '2019-12-04 10:02:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-12-02 20:20:04',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.984]] [LOG]    SELECT * FROM events where id =  314
+App 241 output: [[00:47:42.985]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 314,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-12-03 10:02:00',
+App 241 output:   end_date: '2019-12-03 10:02:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-12-02 22:00:25',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.985]] [LOG]    SELECT * FROM events where id =  315
+App 241 output: [[00:47:42.986]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 315,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'erag',
+App 241 output:   start_date: '2019-12-05 16:00:00',
+App 241 output:   end_date: '2019-12-05 16:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-12-05 00:35:51',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.987]] [LOG]    SELECT * FROM events where id =  316
+App 241 output: [[00:47:42.987]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 316,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'eragrg',
+App 241 output:   start_date: '2019-12-05 16:00:00',
+App 241 output:   end_date: '2019-12-05 16:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-12-05 00:36:59',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.988]] [LOG]    SELECT * FROM events where id =  317
+App 241 output: [[00:47:42.989]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 317,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'erager',
+App 241 output:   start_date: '2019-12-04 11:03:00',
+App 241 output:   end_date: '2019-12-04 11:03:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-12-05 00:37:41',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.989]] [LOG]    SELECT * FROM events where id =  318
+App 241 output: [[00:47:42.990]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 318,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'eargr',
+App 241 output:   start_date: '0002-02-01 07:52:58',
+App 241 output:   end_date: '0002-02-01 07:52:58',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-12-05 00:41:24',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.991]] [LOG]    SELECT * FROM events where id =  320
+App 241 output: [[00:47:42.992]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 320,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 2526,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: '',
+App 241 output:   start_date: '2019-12-06 20:12:00',
+App 241 output:   end_date: '2019-12-06 20:12:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2019-12-06 18:51:27',
+App 241 output:   type: 'todo',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:42.992]] [LOG]    SELECT * FROM events where id =  321
+App 241 output: [[00:47:42.993]] [LOG]    DTA RowDataPacket {
+App 241 output:   id: 321,
+App 241 output:   company_id: 1,
+App 241 output:   created_by: 1010,
+App 241 output:   address_id: null,
+App 241 output:   upload_id: null,
+App 241 output:   event_type_id: null,
+App 241 output:   title: 'Todo',
+App 241 output:   details: 'Call this person to remind them',
+App 241 output:   start_date: '2020-01-20 16:00:00',
+App 241 output:   end_date: '2020-01-20 16:00:00',
+App 241 output:   duration: 0,
+App 241 output:   is_all_day: 0,
+App 241 output:   created_at: '2020-01-19 23:42:00',
+App 241 output:   type: 'tod
+App 241 output: o',
+App 241 output:   group_id: null }
+App 241 output: [[00:47:52.140]] [LOG]    
+App 241 output: 2020-01-20 00:47:52
+App 241 output: [[00:48:02.140]] [LOG]    2020-01-20 00:48:02
+App 241 output: [[00:48:12.142]] [LOG]    2020-01-20 00:48:12
+App 241 output: [[00:48:22.144]] [LOG]    
+App 241 output: 2020-01-20 00:48:22
+App 241 output: [[00:48:32.147]] [LOG]    2020-01-20 00:48:32
+[ N 2020-01-20 00:49:27.8051 196/T1 age/Wat/WatchdogMain.cpp:1373 ]: Starting Passenger watchdog...
+[ N 2020-01-20 00:49:27.8247 199/T1 age/Cor/CoreMain.cpp:1340 ]: Starting Passenger core...
+[ N 2020-01-20 00:49:27.8250 199/T1 age/Cor/CoreMain.cpp:256 ]: Passenger core running in multi-application mode.
+[ N 2020-01-20 00:49:27.8360 199/T1 age/Cor/CoreMain.cpp:1015 ]: Passenger core online, PID 199
+[ N 2020-01-20 00:49:30.6498 199/T5 age/Cor/SecurityUpdateChecker.h:519 ]: Security update check: no update found (next check in 24 hours)
+App 242 output: [[00:49:32.461]] [LOG]    
+App 242 output: 00:49:32
+App 242 output: [[00:49:32.463]] [LOG]    30 55 23 * * *
+App 242 output: [[00:49:32.469]] [LOG]    
+App 242 output: 0 10 5 * * *
+App 242 output: [[00:49:32.470]] [LOG]    
+App 242 output: 0 20 8 * * *
+App 242 output: [[00:49:32.471]] [LOG]    
+App 242 output: 0 30 6 * * *
+App 242 output: [[00:49:32.874]] [LOG]    
+App 242 output: Attempting to start
+App 242 output: [[00:49:32.877]] [LOG]    
+App 242 output: up and running
+App 242 output: [[00:49:32.878]] [ERROR]  
+App 242 output: (node:242) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 job ttl exceeded listeners added. Use emitter.setMaxListeners() to increase limit
+App 242 output: [[00:49:32.915]] [LOG]    
+App 242 output: SELECT * FROM events where id =  27
+App 242 output: [0mHEAD / [33m404 [0m11.057 ms - 14[0m
+App 242 output: [[00:49:32.922]] [LOG]    
+App 242 output: DTA RowDataPacket {
+App 242 output:   id: 27,
+App 242 output:   company_id: 1,
+App 242 output:   created_by: 2152,

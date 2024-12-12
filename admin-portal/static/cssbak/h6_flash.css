@@ -1,0 +1,121 @@
+.h6d-flash-container {
+    padding: 15px;
+    position:relative;
+    border: 1px solid #e2e2e2;
+    margin-bottom: 10px;
+    border-radius: 2px;
+    background: #ffffff;
+}
+
+.h6d-flash-container {
+    opacity: 1;
+    -webkit-transition: 500ms all ease;
+    -moz-transition: 500ms all ease;
+    -ms-transition: 500ms all ease;
+    -o-transition: 500ms all ease;
+    transition: 500ms all ease;
+
+    font-family: "Roboto", sans-serif;
+    font-size: 12px;
+
+}
+
+.h6d-flash-container.fade-out {
+    opacity: 0;
+}
+
+.h6d-flash-container button.h6d-close {
+    border: none;
+    background: none;
+    font-size: 24px;
+    color: #a0a0a0;
+    margin-top: -2px;
+    width: 36px;
+}
+
+.h6d-flash-container.flash-warning:after,
+.h6d-flash-container.flash-error:after,
+.h6d-flash-container.flash-success:after {
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+    position: absolute;
+    font-size: 14px;
+    top: 17px;
+    left: 18px;
+    z-index: 1;
+}
+.h6d-flash-container.flash-success:after {
+    content: "\f00c";
+    color: #526549;
+}
+
+.h6d-flash-container.flash-error:after {
+    content: "\f00d";
+    color: #d95259;
+}
+
+.h6d-flash-container.flash-warning:after {
+    content: "\f071";
+    color: #906014;
+}
+
+.h6d-flash-container.flash-warning .h6d-flash-body,
+.h6d-flash-container.flash-success .h6d-flash-body,
+.h6d-flash-container.flash-error .h6d-flash-body{
+    margin-left: 25px;
+}
+
+.h6d-flash-container.flash-success{
+    border: 1px solid #cadec3;
+    background: #dcf3d6;
+    color: #526549;
+}
+
+.h6d-flash-container.flash-success button.h6d-close{
+    color: #526549;
+
+}
+
+
+.h6d-flash-container.flash-error{
+    border: 1px solid #FACCD2;
+    background: #FDEBED;
+    color: #C52828;
+}
+
+.h6d-flash-container.flash-error button.h6d-close{
+    color: #C52828;
+}
+
+.h6d-flash-container.flash-warning{
+    border: 1px solid #dadb8f;
+    background: #f8f4c4;
+    color: #906014;
+}
+
+
+.h6d-flash-container.flash-warning button.h6d-close{
+    color: #906014;
+}
+
+.h6d-flash-container .h6d-close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.h6d-flash-container.h6d-standard {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.h6d-flash-container.h6d-notification {
+    max-width: 400px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+}
+

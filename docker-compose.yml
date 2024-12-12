@@ -1,0 +1,190 @@
+version: "3.5"
+services:
+  gate-access:
+    # restart: always
+    build:
+        dockerfile: Dockerfile.dev
+        context: ./gate-access
+    volumes:
+        - /home/app/gate-access/node_modules
+        - ./gate-access:/home/app/gate-access/
+    environment:
+        - PORT=99
+        - GATE_PORT=99
+        - MYSQL_HOST=mysql
+        - MYSQL_PORT=3306
+        - MYSQL_USER=root
+        - MYSQL_PASSWORD=1111
+        - MYSQL_DATABASE=gate-access
+        - NOKE_USER_AGENT=HummingbirdSandbox/1.0
+        - BRIVO_API_KEY=302a26db-ed3e-4245-adb1-7646aae6b42e
+        - GDS_API_KEY=309365e7685b4b048d79dc7d29bd4f57
+        - NODE_ENV=local
+    ports:
+        - '9999:99'
+        - '9230:9229'
+    links:
+        - mysql:mysql
+    depends_on:
+        - mysql
+    networks:
+      - hb
+
+
+  # gate-access:
+  #   restart: always
+  #   build:
+  #     dockerfile: Dockerfile.dev
+  #     context: ./gate-access
+  #   volumes:
+  #     - /home/app/gate-access/node_modules
+  #     - ./gate-access:/home/app/gate-access/
+  #   environment:
+  #     - PORT=81
+  #     - MYSQL_HOST=mysql
+  #     - MYSQL_PORT=3306
+  #     - MYSQL_USER=root
+  #     - MYSQL_PASSWORD=1111
+  #     - MYSQL_DATABASE=gate-access
+  #     - NOKE_USER_AGENT=HummingbirdSandbox/1.0
+  #   ports:
+  #     - "8080:81"
+  #     - "9230:9229"
+  #   links:
+  #     - mysql:mysql
+  #   depends_on:
+  #     - mysql
+  #   networks:
+  #     - hb
+
+  worker:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./worker-server
+    volumes:
+      - /home/app/hummingbird/node_modules
+      - ./worker-server:/home/app/hummingbird/
+    env_file:
+      - env_dev.env
+    ports:
+      - "3002:3002"
+      - "9222:9229"
+    links:
+      - mysql:mysql
+      - redis:redis
+    networks:
+      - hb
+    depends_on:
+      - mysql
+  api:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./api-server
+    volumes:
+      - /home/app/hummingbird/node_modules
+      - ./api-server:/home/app/hummingbird/
+    env_file:
+      - env_dev.env
+    ports:
+      - "3001:3001"
+      - "9229:9229"
+    links:
+      - mysql:mysql
+      - redis:redis
+    networks:
+      - hb
+    depends_on:
+      - mysql
+  # mysql:
+  #   image: mysql:5.6
+  #   volumes:
+  #     - ./database-uat:/docker-entrypoint-initdb.d
+  #   env_file:
+  #     - env_dev.env
+  #   networks:
+  #     - hb
+  #   ports:
+  #     - '8306:3306'
+  mysql:
+    image: mysql:latest
+    cap_add:
+      - SYS_NICE # CAP_SYS_NICE
+    command: --default-authentication-plugin=mysql_native_password --sql_mode=""
+    volumes:
+      - ./database-uat:/docker-entrypoint-initdb.d
+      - ./mysql-data:/var/lib/mysql
+    env_file:
+      - env_dev.env
+    networks:
+      - hb
+    ports:
+      - "8306:3306"
+  redis:
+    image: redis
+    networks:
+      - hb
+  web:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./web-server
+    volumes:
+      - /home/app/hummingbird/node_modules
+      - ./web-server:/home/app/hummingbird/
+    environment:
+      - npm_config_unsafe_perm=true
+    env_file:
+      - env_dev.env
+    ports:
+      - "80:80"
+    networks:
+      - hb
+    depends_on:
+      - mysql
+  pdf:
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./pdf-generator
+    shm_size: "5m"
+    volumes:
+      - /home/app/hummingbird/node_modules
+      - ./pdf-generator:/home/app/hummingbird/
+    env_file:
+      - env_dev.env
+    ports:
+      - "3003:3000"
+      - "9220:9229"
+    networks:
+      - hb
+  sockets:
+    restart: "always"
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./websocket-sever
+    env_file:
+      - env_dev.env
+    volumes:
+      - /home/app/hummingbird/node_modules
+      - ./websocket-sever:/home/app/hummingbird
+    ports:
+      - "3004:3004"
+      - "9221:9229"
+    networks:
+      - hb
+
+  dynamo:
+    image: amazon/dynamodb-local
+    hostname: dynamodb-local
+    container_name: dynamodb-local
+    env_file:
+      - env_dev.env
+    networks:
+      - hb
+    ports:
+      - "8000:8000"
+
+networks:
+  hb:

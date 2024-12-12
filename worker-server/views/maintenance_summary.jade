@@ -1,0 +1,110 @@
+table(width="100%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#f5f7f8")
+    tbody
+        tr
+            td(align="center")
+                table(align="center" class="table600" width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff")
+                    tbody
+                        tr
+                            td(width="15") &nbsp;
+                            td(align="left" style="font-family: 'Open Sans', Arial, sans-serif; color: #7f8c8d; font-size:13px; line-height:28px;")
+
+                                table(style="width: 100%; font-size: 12px;")
+                                    tr
+                                        td(height="30" colspan="4")
+                                    tr
+                                        td(width="15")
+                                        td(width="250")
+                                             | !{company.getLogoPath()}
+                                        td(style="text-align: center; line-height:18px;" )
+                                            h2(style="margin-bottom: 5px;") Maintenance Summary
+                                            p(style="margin: 5px;")
+                                                | #{timePeriod.start}
+                                                if timePeriod.end
+                                                    | - #{timePeriod.end}
+                                        td(width="15")
+                                    tr
+                                        td(height="30" colspan="4")
+
+                                table(style="width: 100%; font-size: 12px;")
+                                    tr
+                                        td(width="15")
+                                        td(style="text-align: center;")
+                                            h2(style="margin: 0px; line-height: 60px; font-size: 60px; color: #0288d1;" ) #{statusCount.total.opened}
+                                            p(style="margin: 0px; text-transform: uppercase; color: #545454; font-weight: bold;") Requests Received
+                                        td(style="text-align: center;" )
+                                            h2(style="margin: 0px; line-height: 60px; font-size: 60px; color: #0288d1;") #{statusCount.total.resolved}
+                                            p(style="margin: 0px; text-transform: uppercase; color: #545454; font-weight: bold;") Requests Resolved
+                                        td(width="15")
+                                    tr
+                                        td(height="30" colspan="4")
+
+
+                                table(style="width: 100%;")
+                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; font-weight: bold; line-height:28px; color: white; border: 1px solid #e2e2e2;" bgcolor="#0277bd")
+                                        th(width="15")
+                                        th Severity
+                                        th Opened
+                                        th Resolved
+                                        th(width="15")
+
+                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2;" bgcolor="#f5f7f8")
+                                        td(width="15")
+                                        td Standard
+                                        td #{ statusCount.Standard.opened }
+                                        td #{ statusCount.Standard.resolved }
+                                        td(width="15")
+
+                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2;" bgcolor="#f5f7f8")
+                                        td(width="15")
+                                        td Urgent
+                                        td #{ statusCount.Urgent.opened }
+                                        td #{ statusCount.Urgent.resolved }
+                                        td(width="15")
+                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-top: 1px solid #e2e2e2;" bgcolor="#f5f7f8")
+                                        td(width="15")
+                                        td Emergency
+                                        td #{ statusCount.Emergency.opened }
+                                        td #{ statusCount.Emergency.resolved }
+                                        td(width="15")
+
+                                table(style="width: 100%;")
+                                    tr(bgcolor="#ffffff"  style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; width: 100%;")
+                                        td(height="50")
+
+                                    tr(bgcolor="#ffffff"  style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:18px; width: 100%;")
+                                        td
+                                            h3(style="margin: 5px 0;") Open Maintenance Requests
+                                            p(style="margin: 0 0  20px 0; color: #a0a0a0;")
+                                                em (max 50 shown)
+
+                                table(style="width: 100%;")
+                                    tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; font-weight: bold; line-height:28px; color: white; border: 1px solid #e2e2e2;" bgcolor="#0277bd")
+                                        th(width="15")
+                                        th Severity
+                                        th Date Opened
+                                        th Opened By
+                                        th Unit
+                                        th(width="15")
+                                    each m, i in maintenance
+                                        - bgColor = (i %2 )? '#f5f7f8': '#ffffff';
+                                        tr(style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px; border-bottom: 1px solid #e2e2e2; border-left: 1px solid #e2e2e2; border-right: 1px solid #e2e2e2;" bgcolor="#{bgColor}")
+                                            td(width="15")
+                                            case m.severity
+                                                when "Standard"
+                                                    td(valign="top") #{ m.severity }
+                                                when "Emergency"
+                                                    td(valign="top" style="color: #C62828") #{ m.severity }
+                                                when "Urgent"
+                                                    td(valign="top" style="color: #F9A823") #{ m.severity }
+                                            td(valign="top") #{ moment(m.date).format('MM/DD/YYYY') }
+                                            td(valign="top")
+                                                | #{m.Contact.first } #{m.Contact.last}<br />
+                                            td(style="line-height:16px;" valign="top")
+                                                | #{m.Lease.Unit.Address.address } ##{m.Lease.Unit.number }<br />
+                                                | #{m.Lease.Unit.Address.city } #{m.Lease.Unit.Address.state } #{m.Lease.Unit.Address.zip }
+                                            td(width="15")
+
+                                    tr(bgcolor="#ffffff"  style="text-align: left; font-family: 'Open Sans', Arial, sans-serif; color:#3b3b3b; font-size:11px; line-height:21px;")
+                                        td(colspan="6" height="15")
+
+                            td(width="15" bgcolor="#ffffff") &nbsp;

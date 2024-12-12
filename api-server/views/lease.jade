@@ -1,0 +1,284 @@
+include /layouts/pdf
+    div
+        #lease
+    script(type='text/javascript').
+
+        var boxParent = document.getElementById('lease');
+
+        var renderedContent = "!{content}";
+        // console.log(renderedContent);
+        // lease.innerHTML = renderedContent;
+        // console.log(lease);
+        //var lastheight = 0;
+
+        next(boxParent, renderedContent, true);
+
+
+        function next(boxParent, renderedContent, begin){
+
+            if(renderedContent.length > 0) {
+                var boxContent = document.createElement('div');
+                boxContent.className = 'content __measuring';
+                boxParent.appendChild(boxContent);
+
+                if(begin){
+                    boxContent.innerHTML += '<div class="header group"><img src="http://10.0.46.14/img/uploads/company/logo_on_white.jpg" class="logo"><h1>LEASE</h1></div>';
+                }
+
+                var indexOfSpace = renderedContent.indexOf(' ');
+                var first = true;
+
+                var lastWord = '';
+                var lastIndexOfSpace = indexOfSpace;
+                var cont = true;
+                var interval = setInterval(function () {
+                //while (cont) {
+
+                    if (indexOfSpace != -1 && boxContent.offsetHeight <= 778 ) {
+
+                        if (renderedContent.substring(0, 1) == '<') {
+                            var div = document.createElement('div');
+                            div.innerHTML = renderedContent;
+
+                            if (!first || div.firstChild.outerHTML.substring(0, 4) != "<br ") {
+                                boxContent.innerHTML += ' ' + div.firstChild.outerHTML;
+                            }
+                            renderedContent = renderedContent.slice(div.firstChild.outerHTML.length + 1);
+                        } else {
+                            boxContent.innerHTML += ' ' + renderedContent.substring(0, indexOfSpace);
+                            renderedContent = renderedContent.substring(lastIndexOfSpace + 1);
+
+                        }
+                        first = false;
+                        indexOfSpace = renderedContent.indexOf(' ');
+                        lastIndexOfSpace = indexOfSpace;
+
+                    } else {
+                        cont = false;
+                        clearInterval(interval);
+
+                        if (boxContent.innerHTML[boxContent.innerHTML.length - 1] == '>') {
+
+                            lastWord = boxContent.lastChild.outerHTML;
+                            boxContent.removeChild(boxContent.lastChild);
+                        } else {
+                            lastWord = boxContent.innerHTML.split(" ").slice(-1);
+                            var lastIndex = boxContent.innerHTML.lastIndexOf(" ");
+                            boxContent.innerHTML = boxContent.innerHTML.substring(0, lastIndex);
+                        }
+
+                        boxContent.className = 'content';
+                        if (indexOfSpace == -1) {
+                            boxContent.innerHTML += " " + renderedContent;
+                            renderedContent = '';
+                            return;
+                        } else {
+                            next(boxParent, lastWord + ' ' + renderedContent);
+                        }
+                    }
+                // }
+                }, 3);
+
+            }
+        }
+    style.
+        #lease .content .initials{
+            margin: 0px 0px 0 0;
+            font-weight: 800;
+        }
+
+        .header {
+            margin-bottom: 33px;
+        }
+
+        #lease {
+            width: 100%;
+        }
+        body{
+            background: #f5f7f8;
+        }
+
+        #lease .content {
+            display: block;
+            width: 543px;
+            padding: 36px 36px;
+            height: 720px;
+            border:1px solid #e2e2e2;
+            margin: 50px auto;
+            -webkit-box-shadow: 3px 3px 15px #ccc;
+            -moz-box-shadow: 3px 3px 15px #ccc;
+            box-shadow: 3px 3px 15px #ccc;
+            background-color: #ffffff;
+            line-height: 22px;
+            font-size: 13px;
+            font-family: "Open sans", sans-serif;
+        }
+
+        #lease .content.__measuring {
+            height: auto;
+        }
+
+        #pageHeader{
+            clear: both;
+            font-family: "Open sans", sans-serif;
+
+
+
+
+        }
+
+        #pageFooter{
+            font-family: "Open sans", sans-serif;
+            font-size: 11px;
+            line-height: 11px;
+            padding: 15px;
+        }
+        .group:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        h1{
+            padding: 25px 5px;
+            margin: 0 0 0 0;
+            float: right;
+            text-transform: uppercase;
+        }
+
+
+        .text-left{
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        img.logo {
+            height: 100px;
+            float: left;
+        }
+
+        #pageHeader {
+            clear: both;
+        }
+
+        .group:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        h1 {
+            padding: 25px 5px;
+            margin: 0 0 0 0;
+            float: right;
+        }
+
+        .date-box {
+            display: inline-block;
+            vertical-align: top;
+            width: 35%;
+            padding: 5px;
+            margin-top: 45px;
+
+        }
+
+        .address-box {
+            display: inline-block;
+            width: 60%;
+            vertical-align: top;
+            padding: 5px;
+            margin-top: 45px;
+
+        }
+
+        .date-box span.label {
+            display: inline-block;
+            width: 100px;
+            font-weight: bold;
+            vertical-align: top;
+        }
+
+        .date-box span.value {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        table.table {
+            width: 100%;
+        }
+
+        table.table {
+            text-align: left;
+            border: 0;
+            margin: 10px 0 0;
+            border-spacing: 0px;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        table.table-total,
+        table.table-payments {
+            text-align: left;
+            clear: both;
+            border-spacing: 0;
+            border: 0;
+            margin: 30px 0;
+            border-collapse: collapse;
+            table-layout: fixed;
+            float: right;
+            width: auto;
+        }
+
+        table.table-total {
+            background-color: #0277BD;
+            color: white;
+        }
+
+        table th {
+            margin: 0;
+            padding: 10px 5px;
+            border-bottom: 1px solid #e2e2e2;
+        }
+
+        table.table-total td {
+            padding: 10px 15px;
+            border: none;
+        }
+
+        td {
+            padding: 7px 5px;
+            border-bottom: 1px solid #e2e2e2;
+            margin: 0;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .no-border {
+            border: none;
+
+        }
+
+        tr.spacer td {
+            height: 50px;
+        }
+
+        img.logo {
+            height: 100px;
+            float: left;
+        }
